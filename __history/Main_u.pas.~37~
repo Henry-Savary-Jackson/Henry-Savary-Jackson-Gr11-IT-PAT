@@ -1,0 +1,117 @@
+unit Main_u;
+
+interface
+
+uses
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants,
+  System.Classes, Vcl.Graphics,
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Data.DB, Vcl.Grids, Vcl.DBGrids,
+  DMUnit_u,
+  Vcl.StdCtrls;
+
+type
+  TfrmMain = class(TForm)
+    lblWelcome: TLabel;
+    btnSignOut: TButton;
+    btnHelp: TButton;
+    btnTournament: TButton;
+    btnTeams: TButton;
+    btnSupervisors: TButton;
+    procedure FormShow(Sender: TObject);
+    procedure btnSupervisorsClick(Sender: TObject);
+    procedure btnTeamsClick(Sender: TObject);
+    procedure btnTournamentClick(Sender: TObject);
+    procedure btnSignOutClick(Sender: TObject);
+    procedure FormClose(Sender: TObject; var Action: TCloseAction);
+    procedure btnHelpClick(Sender: TObject);
+    procedure saveInfo();
+  private
+    { Private declarations }
+  public
+    { Public declarations }
+    sID: string;
+    iUser: integer;
+    // 0 = organiser
+    // 1 = supervisor
+  end;
+
+var
+  frmMain: TfrmMain;
+
+implementation
+
+uses
+  Login_u,
+  Supervisors_u,
+  Teams_u,
+  Tournament_u,
+  Help_u;
+
+{$R *.dfm}
+
+procedure TfrmMain.btnHelpClick(Sender: TObject);
+begin
+  frmHelp.Show;
+  frmMain.Hide;
+end;
+
+procedure TfrmMain.btnSignOutClick(Sender: TObject);
+begin
+  frmLogin.Show;
+  frmMain.Hide;
+end;
+
+procedure TfrmMain.btnSupervisorsClick(Sender: TObject);
+begin
+  frmSupervisors.Show;
+  frmMain.Hide;
+end;
+
+procedure TfrmMain.btnTeamsClick(Sender: TObject);
+begin
+  frmTeams.Show;
+  frmMain.Hide;
+end;
+
+procedure TfrmMain.btnTournamentClick(Sender: TObject);
+begin
+  frmTournament.Show;
+  frmMain.Hide;
+end;
+
+procedure TfrmMain.FormClose(Sender: TObject; var Action: TCloseAction);
+begin
+  saveInfo();
+  Application.Terminate;
+end;
+
+procedure TfrmMain.FormShow(Sender: TObject);
+begin
+  with DataModule1 do
+  begin
+    OrganiserTB.Open;
+    SupervisorTB.Open;
+
+    case iUser of
+      0: lblWelcome.Caption := 'Welcome';
+      1: lblWelcome.Caption := 'Welcome';
+    end;
+
+  end;
+
+end;
+
+procedure TfrmMain.saveInfo();
+begin
+  // Procedure to save all information to files and DataBase
+  with DataModule1 do
+  begin
+    OrganiserTB.Post;
+    OrganiserTB.Refresh;
+    SupervisorTB.Post;
+    SupervisorTB.Refresh;
+  end;
+  // Write();
+end;
+
+end.

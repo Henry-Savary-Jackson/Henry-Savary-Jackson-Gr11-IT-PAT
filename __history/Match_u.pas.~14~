@@ -1,0 +1,62 @@
+unit Match_u;
+
+interface
+
+uses
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, Vcl.ComCtrls, DMUnit_u;
+
+type
+  TfrmMatch = class(TForm)
+    btnBack: TButton;
+    lblTeamOne: TLabel;
+    vsLabel: TLabel;
+    lblTeamTwo: TLabel;
+    ComboBox1: TComboBox;
+    lblSupervisor: TLabel;
+    lblDate: TLabel;
+    DateTimePicker1: TDateTimePicker;
+    Edit1: TEdit;
+    lblLocation: TLabel;
+    btnSave: TButton;
+    procedure FormClose(Sender: TObject; var Action: TCloseAction);
+    procedure btnBackClick(Sender: TObject);
+    procedure saveInfo();
+    procedure FormShow(Sender: TObject);
+  private
+    { Private declarations }
+  public
+    { Public declarations }
+    AllocID : string;
+  end;
+
+var
+  frmMatch: TfrmMatch;
+
+implementation
+uses
+Tournament_u;
+
+{$R *.dfm}
+
+procedure TfrmMatch.btnBackClick(Sender: TObject);
+begin
+frmMatch.Hide;
+frmTournament.Show;
+end;
+
+procedure TfrmMatch.FormClose(Sender: TObject; var Action: TCloseAction);
+begin
+Application.Terminate;
+end;
+
+procedure TfrmMatch.FormShow(Sender: TObject);
+begin
+with DataModule1 do
+begin
+  MatchTB.Open;
+  Ma.Open;
+end;
+end;
+
+end.

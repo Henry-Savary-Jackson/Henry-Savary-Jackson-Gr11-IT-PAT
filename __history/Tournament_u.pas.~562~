@@ -1,0 +1,327 @@
+unit Tournament_u;
+
+interface
+
+uses
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants,
+  System.Classes, Vcl.Graphics,
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, Vcl.ComCtrls, DMUnit_u,
+  Utils_u, Math;
+
+type
+  TfrmTournament = class(TForm)
+    lstAllocations: TListBox;
+    cmbRound: TComboBox;
+    redTeams: TRichEdit;
+    btnBack: TButton;
+    btnBeginTournament: TButton;
+    btnNextRnd: TButton;
+    procedure lstAllocationsClick(Sender: TObject);
+    procedure FormClose(Sender: TObject; var Action: TCloseAction);
+    procedure btnBackClick(Sender: TObject);
+    procedure FormShow(Sender: TObject);
+    procedure displayAllocs();
+    procedure cmbRoundChange(Sender: TObject);
+    procedure btnBeginTournamentClick(Sender: TObject);
+    procedure makeFixtures(arr: TArray<string>; Round: integer);
+    procedure saveTournament();
+    procedure btnNextRndClick(Sender: TObject);
+    function calcByes(iTeams: integer): integer;
+  private
+    { Private declarations }
+  public
+    { Public declarations }
+    sID: string;
+    iUser, iNumRounds: integer;
+    bBegin: boolean;
+  end;
+
+var
+  frmTournament: TfrmTournament;
+  // these dynamic arrays allow for all the relevant data
+  // to be retrieved once a user accesses frmMatch
+  // by storing the MatchIDs and AllocIDs in parallel.
+  arrMatchID, arrAllocID, arrWB, arrLB: TArray<string>;
+  util: Utils;
+  iRound: integer;
+  fTournament: TextFile;
+
+const
+  fileName = 'Tournament.txt';
+
+implementation
+
+uses
+  Match_u,
+  Main_u;
+
+{$R *.dfm}
+
+procedure TfrmTournament.btnBackClick(Sender: TObject);
+begin
+  frmMain.Show;
+  frmTournament.Hide;
+end;
+
+procedure TfrmTournament.FormClose(Sender: TObject; var Action: TCloseAction);
+begin
+  Application.Terminate;
+end;
+
+procedure TfrmTournament.FormShow(Sender: TObject);
+var
+  I: integer;
+begin
+  // open tables
+  with DataModule1 do
+  begin
+    MatchTB.Open;
+    MatchAllocTB.Open;
+    TeamTB.Open;
+
+    // add rounds to the combo box
+
+    // TODO: FIX
+    cmbRound.Items.Clear;
+    for I := 1 to iNumRounds do
+    begin
+      cmbRound.Items.Add(intToStr(I));
+    end;
+
+    // update list box
+    displayAllocs();
+
+    // populate wb and lb
+    TeamTB.Filter := 'NumLost = 0';
+    TeamTB.Filtered := true;
+    TeamTB.First;
+    I := 0;
+    while not TeamTB.Eof do
+    begin
+      I := I + 1;
+      setLength(arrWB, I);
+      arrWB[I - 1] := TeamTB['TeamName'];
+      showMessage(arrWB[I - 1]);
+      TeamTB.Next;
+    end;
+    TeamTB.Filter := 'NumLost = 1';
+    TeamTB.First;
+    I := 0;
+    while not TeamTB.Eof do
+    begin
+      I := I + 1;
+      setLength(arrLB, I);
+      arrLB[I - 1] := TeamTB['TeamName'];
+      TeamTB.Next;
+    end;
+    TeamTB.Filtered := false;
+
+    // Only allows the next round to be started if all matches are over
+    MatchTB.Filter := 'MatchDate > ' + DateToStr(Date);
+    MatchTB.Filtered := true;
+    btnNextRnd.Enabled := MatchTB.RecordCount = 0;
+
+  end;
+
+end;
+
+procedure TfrmTournament.lstAllocationsClick(Sender: TObject);
+var
+  Index: integer;
+begin
+  case lstAllocations.ItemIndex of
+    - 1:
+    else
+    begin
+      with DataModule1 do
+      begin
+        // passes selected MatchID and associated AllocIDs to Match Screen
+        index := lstAllocations.ItemIndex;
+        frmMatch.matchID := arrMatchID[index];
+        setLength(frmMatch.arrAllocID, 2);
+        frmMatch.arrAllocID[0] := arrAllocID[index * 2];
+        frmMatch.arrAllocID[1] := arrAllocID[(index * 2) + 1];
+        frmMatch.iUser := iUser;
+        frmMatch.sID := sID;
+
+        frmMatch.Show;
+        frmTournament.Hide;
+
+      end;
+    end;
+  end;
+end;
+
+function TfrmTournament.calcByes(iTeams: integer): integer;
+var
+  iPower, iHighestPower, iPrevPower, distHigh, distLow: integer;
+begin
+  iPower := 1;
+  while iTeams > trunc(power(2, iPower)) do
+  begin
+    iPower := iPower + 1;
+  end;
+  if iTeams = trunc(power(2, iPower)) then
+  begin
+    Result := 0;
+  end
+  else
+  begin
+    iHighestPower := trunc(power(2, iPower));
+    iPrevPower := trunc(power(2, iPower - 1));
+    distHigh := abs(iTeams - iHighestPower);
+    distLow := abs(iTeams - iPrevPower);
+
+    if distHigh <= distLow then
+    begin
+      Result := distHigh
+    end
+    else
+    begin
+      Result := distLow;
+    end;
+
+  end;
+end;
+
+procedure TfrmTournament.makeFixtures(arr: TArray<string>; Round: integer);
+var
+  arrTeams, arrByes: TArray<string>;
+  arrMatchTeams: array [0 .. 1] of string;
+  dDate: TDateTIme;
+  sMatchID, sAllocID: string;
+  I, J, iHighestPower, iByes, iTeams: integer;
+  bFoundRecord: boolean;
+begin
+  // TODO: RANDOMISE PICKING TEAMS
+  with DataModule1 do
+  begin
+
+    iByes := calcByes(length(arr));
+
+    iTeams := length(arr) - iByes;
+
+    MatchAllocTB.Filter := 'MatchID = ''';
+    MatchAllocTB.Filtered := true;
+
+    if round = 1 then
+    begin
+
+    end;
+
+    dDate := Date;
+
+  end;
+
+end;
+
+procedure TfrmTournament.btnBeginTournamentClick(Sender: TObject);
+begin
+  iRound := 1;
+  makeFixtures(arrWB, iRound);
+
+  btnBeginTournament.Enabled := false;
+
+  saveTournament();
+end;
+
+procedure TfrmTournament.btnNextRndClick(Sender: TObject);
+begin
+
+  iRound := iRound + 1;
+
+  makeFixtures(arrWB, iRound);
+
+  saveTournament();
+
+end;
+
+procedure TfrmTournament.cmbRoundChange(Sender: TObject);
+begin
+  displayAllocs();
+end;
+
+procedure TfrmTournament.displayAllocs();
+var
+  I: integer;
+  sItem: string;
+  dDate: TDateTIme;
+begin
+  //
+  if not(cmbRound.ItemIndex = -1) then
+  begin
+    with DataModule1 do
+    begin
+      // check textfile
+      if not(cmbRound.ItemIndex = -1) then
+        iRound := strToInt(cmbRound.Items[cmbRound.ItemIndex]);
+
+      lstAllocations.Items.Clear;
+
+      // query for matchID that are in the selected round
+      setLength(arrMatchID, 0);
+      setLength(arrAllocID, 0);
+
+      MatchTB.First;
+      I := 0;
+      while not MatchTB.Eof do
+      begin
+
+        if MatchTB['Round'] = iRound then
+        begin
+          setLength(arrMatchID, length(arrMatchID) + 1);
+          arrMatchID[I] := MatchTB['MatchID'];
+
+          dDate := MatchTB['MatchDate'];
+
+          // Loops through the two allocations related to a match record
+          // in order to create a list box item
+          // This also makes it possible for the list box item to give relevant
+          // data to frmMatch
+          setLength(arrAllocID, length(arrMatchID) * 2);
+          MatchAllocTB.First;
+
+          sItem := '';
+
+          util.goToRecord(MatchAllocTB, 'MatchID', arrMatchID[I]);
+          arrAllocID[(2 * I)] := MatchAllocTB['AllocID'];
+          sItem := sItem + MatchAllocTB['TeamName'] + ' vs ';
+          util.goToNextRecord(MatchAllocTB, 'MatchID', arrMatchID[I]);
+          arrAllocID[(2 * I) + 1] := MatchAllocTB['AllocID'];
+          sItem := sItem + MatchAllocTB['TeamName'] + ' on ' + DateToStr(dDate);
+
+          lstAllocations.Items.Add(sItem);
+
+          I := I + 1;
+        end;
+        MatchTB.Next;
+      end;
+      MatchTB.First;
+      MatchAllocTB.First;
+
+    end;
+
+  end;
+
+end;
+
+// Save the state of the tournament to a text file
+procedure TfrmTournament.saveTournament();
+begin
+  AssignFile(fTournament, fileName);
+
+  ReWrite(fTournament);
+  if bBegin then
+  begin
+    Writeln(fTournament, 'Begun: T');
+  end
+  else
+    Writeln(fTournament, 'Begun: F');
+
+  Writeln(fTournament, 'CurrentRound: ' + intToStr(iNumRounds));
+
+  CloseFile(fTournament);
+
+end;
+
+end.

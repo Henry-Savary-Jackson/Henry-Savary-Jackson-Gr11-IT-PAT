@@ -1,0 +1,102 @@
+unit Teams_u;
+
+interface
+
+uses
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants,
+  System.Classes, Vcl.Graphics,
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, DMUnit_u;
+
+type
+  TfrmTeams = class(TForm)
+    btnBack: TButton;
+    ListBox1: TListBox;
+    btnAddTeam: TButton;
+    btnDelTeam: TButton;
+    btnFileTeam: TButton;
+    procedure FormClose(Sender: TObject; var Action: TCloseAction);
+    procedure btnBackClick(Sender: TObject);
+    procedure FormShow(Sender: TObject);
+    procedure btnFileTeamClick(Sender: TObject);
+    procedure saveInfo();
+  private
+    { Private declarations }
+  public
+    { Public declarations }
+  end;
+
+var
+  frmTeams: TfrmTeams;
+
+implementation
+
+uses
+  Main_u;
+
+{$R *.dfm}
+
+procedure TfrmTeams.btnBackClick(Sender: TObject);
+begin
+  frmTeams.Hide;
+  frmMain.Show;
+end;
+
+procedure TfrmTeams.btnFileTeamClick(Sender: TObject);
+var
+  fileChooser: TOpenDialog;
+  sPath, sLine: string;
+  fTeams: TextFile;
+begin
+  fileChooser := TOpenDialog.Create(self);
+
+  fileChooser.Filter := 'Text files|*.txt';
+
+  fileChooser.FilterIndex := 1;
+
+  if fileChooser.Execute then
+  begin
+    sPath := fileChooser.FileName;
+  end
+  else
+  begin
+    showMessage('Please choose a text file');
+    Exit;
+  end;
+
+  fileChooser.Free;
+
+  AssignFile(fTeams, sPath);
+
+  Reset(fTeams);
+
+  Readln(fTeams, sLine);
+
+  showMessage(sLine);
+
+end;
+
+procedure TfrmTeams.FormClose(Sender: TObject; var Action: TCloseAction);
+begin
+  Application.Terminate;
+end;
+
+procedure TfrmTeams.FormShow(Sender: TObject);
+begin
+  with DataModule1 do
+  begin
+    TeamTB.Open;
+  end;
+
+end;
+
+procedure TfrmTeams.saveInfo();
+begin
+// Procedure to save all information to files and DataBase
+  with DataModule1 do
+  begin
+
+  end;
+
+end;
+
+end.

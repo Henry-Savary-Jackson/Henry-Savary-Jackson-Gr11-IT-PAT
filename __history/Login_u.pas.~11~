@@ -1,0 +1,55 @@
+unit Login_u;
+
+interface
+
+uses
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, Vcl.ExtCtrls;
+
+type
+  TfrmLogin = class(TForm)
+    edtUsername: TEdit;
+    edtPassword: TEdit;
+    btnSignIn: TButton;
+    cmbUser: TComboBox;
+    btnSignUp: TButton;
+    lblUsername: TLabel;
+    lblPassword: TLabel;
+    Image1: TImage;
+    lblAppTitle: TLabel;
+    procedure FormCreate(Sender: TObject);
+    procedure btnSignInClick(Sender: TObject);
+    procedure FormClose(Sender: TObject; var Action: TCloseAction);
+  private
+    { Private declarations }
+  public
+    { Public declarations }
+  end;
+
+var
+  frmLogin: TfrmLogin;
+
+implementation
+uses
+Main_u;
+
+{$R *.dfm}
+
+procedure TfrmLogin.btnSignInClick(Sender: TObject);
+begin
+frmLogin.Hide;
+frmMain.Hide
+end;
+
+procedure TfrmLogin.FormClose(Sender: TObject; var Action: TCloseAction);
+begin
+Application.Terminate;
+end;
+
+procedure TfrmLogin.FormCreate(Sender: TObject);
+begin
+//
+lblAppTitle.Caption:= 'CAPE TOWN' +#13 + ' SOCCER TOURNAMENT '+#13 + 'PLANNER';
+end;
+
+end.

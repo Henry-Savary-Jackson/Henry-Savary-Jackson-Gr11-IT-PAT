@@ -1,0 +1,20 @@
+program PAT_p;
+
+uses
+  Vcl.Forms,
+  Main_u in 'Main_u.pas' {Form2},
+  DMUnit_u in 'DMUnit_u.pas' {DataModule1: TDataModule},
+  Login_u in 'Login_u.pas' {frmLogin},
+  Tournament_u in 'Tournament_u.pas' {frmTournament};
+
+{$R *.res}
+
+begin
+  Application.Initialize;
+  Application.MainFormOnTaskbar := True;
+  Application.CreateForm(TForm2, Form2);
+  Application.CreateForm(TDataModule1, DataModule1);
+  Application.CreateForm(TfrmLogin, frmLogin);
+  Application.CreateForm(TfrmTournament, frmTournament);
+  Application.Run;
+end.

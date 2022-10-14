@@ -1,0 +1,32 @@
+program PAT_p;
+
+uses
+  Vcl.Forms,
+  Main_u in 'Main_u.pas' {frmMain},
+  DMUnit_u in 'DMUnit_u.pas' {DataModule1: TDataModule},
+  Login_u in 'Login_u.pas' {frmLogin},
+  Tournament_u in 'Tournament_u.pas' {frmTournament},
+  Match_u in 'Match_u.pas' {frmMatch},
+  Teams_u in 'Teams_u.pas' {frmTeams},
+  Supervisors_u in 'Supervisors_u.pas' {frmSupervisors},
+  Help_u in 'Help_u.pas' {frmHelp},
+  Utils_u in 'Utils_u.pas',
+  SignUp_u in 'SignUp_u.pas' {frmSignUp};
+
+{$R *.res}
+
+begin
+  Application.Initialize;
+  Application.MainFormOnTaskbar := True;
+  Application.CreateForm(TfrmLogin, frmLogin);
+  Application.CreateForm(TfrmMain, frmMain);
+  Application.CreateForm(TDataModule1, DataModule1);
+  Application.CreateForm(TfrmTournament, frmTournament);
+  Application.CreateForm(TfrmMatch, frmMatch);
+  Application.CreateForm(TfrmTeams, frmTeams);
+  Application.CreateForm(TfrmSupervisors, frmSupervisors);
+  Application.CreateForm(TfrmHelp, frmHelp);
+  Application.CreateForm(TfrmSignUp, frmSignUp);
+  Application.CreateForm(TfrmSignUp, frmSignUp);
+  Application.Run;
+end.

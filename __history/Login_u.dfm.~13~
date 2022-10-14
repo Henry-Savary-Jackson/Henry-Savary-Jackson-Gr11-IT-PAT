@@ -1,0 +1,115 @@
+object frmLogin: TfrmLogin
+  Left = 0
+  Top = 0
+  Caption = 'Login'
+  ClientHeight = 366
+  ClientWidth = 354
+  Color = clInactiveCaption
+  Font.Charset = DEFAULT_CHARSET
+  Font.Color = clWindowText
+  Font.Height = -11
+  Font.Name = 'Tahoma'
+  Font.Style = []
+  OldCreateOrder = False
+  OnCreate = FormCreate
+  PixelsPerInch = 96
+  TextHeight = 13
+  object lblUsername: TLabel
+    Left = 62
+    Top = 147
+    Width = 54
+    Height = 17
+    Caption = 'Username:'
+    Font.Charset = ANSI_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -13
+    Font.Name = 'Agency FB'
+    Font.Style = [fsBold]
+    ParentFont = False
+  end
+  object lblPassword: TLabel
+    Left = 62
+    Top = 192
+    Width = 54
+    Height = 17
+    Caption = 'Password:'
+    Font.Charset = ANSI_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -13
+    Font.Name = 'Agency FB'
+    Font.Style = [fsBold]
+    ParentFont = False
+  end
+  object Image1: TImage
+    Left = 136
+    Top = 8
+    Width = 65
+    Height = 65
+  end
+  object lblAppTitle: TLabel
+    Left = 80
+    Top = 79
+    Width = 367
+    Height = 12
+    Alignment = taCenter
+    Caption = 'Cape Town Soccer Tournament Planner'
+    Font.Charset = ANSI_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -11
+    Font.Name = 'Engravers MT'
+    Font.Style = [fsBold]
+    ParentFont = False
+  end
+  object edtUsername: TEdit
+    Left = 168
+    Top = 144
+    Width = 121
+    Height = 21
+    TabOrder = 0
+  end
+  object edtPassword: TEdit
+    Left = 168
+    Top = 192
+    Width = 121
+    Height = 21
+    TabOrder = 1
+  end
+  object btnSignIn: TButton
+    Left = 56
+    Top = 304
+    Width = 75
+    Height = 25
+    Caption = 'Sign In'
+    Font.Charset = ANSI_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -13
+    Font.Name = 'Agency FB'
+    Font.Style = [fsBold]
+    ParentFont = False
+    TabOrder = 2
+  end
+  object cmbUser: TComboBox
+    Left = 96
+    Top = 240
+    Width = 145
+    Height = 21
+    TabOrder = 3
+    Items.Strings = (
+      'Organiser'
+      'Supervisor')
+  end
+  object btnSignUp: TButton
+    Left = 192
+    Top = 304
+    Width = 75
+    Height = 25
+    Caption = 'Sign Up'
+    Font.Charset = ANSI_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -13
+    Font.Name = 'Agency FB'
+    Font.Style = [fsBold]
+    ParentFont = False
+    TabOrder = 4
+  end
+end

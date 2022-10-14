@@ -1,0 +1,100 @@
+object frmTeams: TfrmTeams
+  Left = 0
+  Top = 0
+  Caption = 'Enter Teams'
+  ClientHeight = 278
+  ClientWidth = 393
+  Color = clBtnFace
+  Font.Charset = DEFAULT_CHARSET
+  Font.Color = clWindowText
+  Font.Height = -11
+  Font.Name = 'Tahoma'
+  Font.Style = []
+  OldCreateOrder = False
+  OnClose = FormClose
+  OnShow = FormShow
+  PixelsPerInch = 96
+  TextHeight = 13
+  object btnBack: TButton
+    Left = 8
+    Top = 8
+    Width = 57
+    Height = 37
+    Caption = 'Back'
+    TabOrder = 0
+    OnClick = btnBackClick
+  end
+  object ListBox1: TListBox
+    Left = 71
+    Top = 8
+    Width = 249
+    Height = 145
+    ItemHeight = 13
+    Items.Strings = (
+      'l'
+      'l'
+      'l'
+      'l'
+      'l'
+      'l'
+      'l'
+      'l'
+      'l'
+      'l'
+      'l'
+      'l'
+      'l'
+      'l'
+      'l'
+      'll'
+      'l'
+      'l'
+      'l'
+      'l'
+      'l'
+      'l'
+      'll'
+      'l'
+      'l'
+      'l'
+      'l'
+      'l'
+      'l'
+      'll'
+      'l'
+      ''
+      'll'
+      'l'
+      'l'
+      'l'
+      'l'
+      'l'
+      'l'
+      'll')
+    TabOrder = 1
+  end
+  object btnAddTeam: TButton
+    Left = 144
+    Top = 168
+    Width = 89
+    Height = 25
+    Caption = 'Add Team'
+    TabOrder = 2
+  end
+  object btnDelTeam: TButton
+    Left = 144
+    Top = 199
+    Width = 113
+    Height = 25
+    Caption = 'Remove Team'
+    TabOrder = 3
+  end
+  object btnFileTeam: TButton
+    Left = 118
+    Top = 230
+    Width = 139
+    Height = 25
+    Caption = 'Add Team name file'
+    TabOrder = 4
+  end
+end

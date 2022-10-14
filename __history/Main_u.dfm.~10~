@@ -1,0 +1,40 @@
+object frmMain: TfrmMain
+  Left = 0
+  Top = 0
+  Caption = 'Main'
+  ClientHeight = 498
+  ClientWidth = 472
+  Color = clBtnFace
+  Font.Charset = DEFAULT_CHARSET
+  Font.Color = clWindowText
+  Font.Height = -11
+  Font.Name = 'Tahoma'
+  Font.Style = []
+  OldCreateOrder = False
+  OnShow = FormShow
+  PixelsPerInch = 96
+  TextHeight = 13
+  object lblWelcome: TLabel
+    Left = 184
+    Top = 8
+    Width = 102
+    Height = 13
+    Caption = 'Welcome (Username)'
+  end
+  object btnSignOut: TButton
+    Left = 192
+    Top = 465
+    Width = 75
+    Height = 25
+    Caption = 'Sign Out'
+    TabOrder = 0
+  end
+  object btnHelp: TButton
+    Left = 424
+    Top = 8
+    Width = 40
+    Height = 25
+    Caption = '?'
+    TabOrder = 1
+  end
+end

@@ -1,0 +1,87 @@
+unit Supervisors_u;
+
+interface
+
+uses
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants,
+  System.Classes, Vcl.Graphics,
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, DMUnit_u;
+
+type
+  TfrmSupervisors = class(TForm)
+    btnBack: TButton;
+    ListBox1: TListBox;
+    btnAddSupervisor: TButton;
+    btnDelSupervisors: TButton;
+    btnFileSupervisors: TButton;
+    procedure FormClose(Sender: TObject; var Action: TCloseAction);
+    procedure btnBackClick(Sender: TObject);
+    procedure btnAddSupervisorClick(Sender: TObject);
+    procedure FormShow(Sender: TObject);
+    procedure btnFileSupervisorsClick(Sender: TObject);
+  private
+    { Private declarations }
+  public
+    { Public declarations }
+  end;
+
+var
+  frmSupervisors: TfrmSupervisors;
+
+implementation
+
+uses
+  Main_u;
+
+{$R *.dfm}
+
+procedure TfrmSupervisors.btnAddSupervisorClick(Sender: TObject);
+begin
+  //
+end;
+
+procedure TfrmSupervisors.btnBackClick(Sender: TObject);
+begin
+  frmMain.Show;
+  frmSupervisors.Hide;
+end;
+
+procedure TfrmSupervisors.btnFileSupervisorsClick(Sender: TObject);
+var
+  fileChooser: TOpenDialog;
+  sPath: string;
+  fSupervisors: TextFile;
+begin
+  fileChooser := TOpenDialog.Create(self);
+
+  fileChooser.Filter := 'Text files|*.txt';
+
+  fileChooser.FilterIndex := 1;
+
+  if fileChooser.Execute() then
+  begin
+    sPath := fileChooser.FileName;
+  end
+  else
+  begin
+    showMessage('Please choose a text file');
+    Exit;
+  end;
+
+  fileChooser.Free;
+
+  AssignFile(fSupervisors, sPath);
+
+end;
+
+procedure TfrmSupervisors.FormClose(Sender: TObject; var Action: TCloseAction);
+begin
+  Application.Terminate;
+end;
+
+procedure TfrmSupervisors.FormShow(Sender: TObject);
+begin
+  DataModule1.SupervisorTB.Open;
+end;
+
+end.

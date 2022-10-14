@@ -1,0 +1,16 @@
+program PAT_p;
+
+uses
+  Vcl.Forms,
+  Main_u in 'Main_u.pas' {Form2},
+  DMUnit_u in 'DMUnit_u.pas' {DataModule1: TDataModule};
+
+{$R *.res}
+
+begin
+  Application.Initialize;
+  Application.MainFormOnTaskbar := True;
+  Application.CreateForm(TForm2, Form2);
+  Application.CreateForm(TDataModule1, DataModule1);
+  Application.Run;
+end.

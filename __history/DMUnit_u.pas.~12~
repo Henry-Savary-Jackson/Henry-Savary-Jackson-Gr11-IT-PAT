@@ -1,0 +1,53 @@
+unit DMUnit_u;
+
+interface
+
+uses
+  System.SysUtils, System.Classes, Data.DB, Data.Win.ADODB;
+
+type
+  TDataModule1 = class(TDataModule)
+    DSTeamTB: TDataSource;
+    ADOConnection1: TADOConnection;
+    TeamTB: TADOTable;
+    MatchTB: TADOTable;
+    MatchAllocTB: TADOTable;
+    OrganiserTB: TADOTable;
+    SupervisorTB: TADOTable;
+    DSMatchTB: TDataSource;
+    DSMatchAllocTB: TDataSource;
+    DSOrganiserTB: TDataSource;
+    DSSupervisorTB: TDataSource;
+    procedure DataModuleCreate(Sender: TObject);
+  private
+    { Private declarations }
+  public
+    { Public declarations }
+  end;
+
+var
+  DataModule1: TDataModule1;
+
+implementation
+
+{%CLASSGROUP 'Vcl.Controls.TControl'}
+
+{$R *.dfm}
+
+procedure TDataModule1.DataModuleCreate(Sender: TObject);
+begin
+//
+ADOConnection1.Close;
+
+ADOConnection1.ConnectionString := '' ;
+
+ADOConnection1.LoginPrompt := FALSE;
+
+TeamTB.Connection := ADOConnection1;
+TeamTB.TableName := 'TeamsTB' ;
+
+MatchTB.Connection := ADOConnection1;
+MatchTB.TableName := 'MatchTB' ;
+end;
+
+end.
