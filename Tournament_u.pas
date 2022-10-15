@@ -288,38 +288,26 @@ var
 begin
   with DataModule1 do
   begin
-
     // calculate byes for next round
     iByes := calcByes(length(arr));
+    //copy array of teams
     arrTeams := copy(arr, 0, length(arr));
     // number of teams that will play in this round
     iTeams := length(arr) - iByes;
 
-    setLength(arrByes, iByes);
-
-    if iRound = 1 then
+    setLength(arrByes, 0);
+    
+    if not(iRound = 1)then
     begin
-      for I := 0 to iByes - 1 do
-      begin
-        iIndex := random(length(arrTeams));
-        arrByes[I] := arrTeams[iIndex];
-        Delete(arrTeams, iIndex, 1);
-
-        // make allocation
-        // find a way to allow null
-        makeAlloc(arrByes[I], '');
-      end; // for I
-
-    end // if
-    else
-    begin
-      MatchAllocTB.Filter := 'MatchID =''';
+      MatchAllocTB.Filter := 'MatchID = '+ QuotedStr('000');
       MatchAllocTB.Filtered := true;
       MatchAllocTB.First;
       // get Byes from previous round nad remove them from arrTeams
       I := 0;
+      setLength(arrByes, MatchAllocTB.RecordCount);
       while not MatchAllocTB.Eof do
       begin
+        showMessage('Byes');
         setLength(arrByes, length(arrByes) + 1);
         arrByes[I] := MatchAllocTB['TeamName'];
         Delete(arrTeams, util.searchList(arrTeams, arrByes[I]), 1);
@@ -330,6 +318,7 @@ begin
       MatchAllocTB.Filtered := false;
       MatchAllocTB.First;
 
+      showMessage('Num byes: '  + intToStr(Length(arrByes)) );
       // make sure each bye from the previous round gets a match
       for I := 0 to length(arrByes) - 1 do
       begin
@@ -337,17 +326,21 @@ begin
         iIndex := random(length(arrTeams));
         arrMatchTeams[1] := arrTeams[iIndex];
         Delete(arrTeams, iIndex, 1);
-
+        showMessage('Woop');
         dDate := dDate + 4;
+
         sMatchID := makeMatch(arrMatchTeams[0], arrMatchTeams[1], dDate, LB);
-        MatchAllocTB.Filter := 'MatchID = ''';
+        showMessage('Woop1');
+        MatchAllocTB.Filter := 'MatchID = '+ QuotedStr('000');
         MatchAllocTB.Filtered := true;
         // go to the bye's allocation record, and give it its new match foreign key
         util.goToRecord(MatchAllocTB, 'TeamName', arrMatchTeams[0]);
         MatchAllocTB.Edit;
         MatchAllocTB['MatchID'] := sMatchID;
         MatchAllocTB.Filtered := false;
+         showMessage('Woop2');
         makeAlloc(arrMatchTeams[1], sMatchID);
+         showMessage('Woop3');
 
       end; // for I
       // showMessage('woop5') ;
@@ -357,6 +350,7 @@ begin
     // create matches with the remaining teams until there aren't enough for a match
     while length(arrTeams) >= 2 do
     begin
+      showMessage('Woop4');
       for J := 0 to 1 do
       begin
         iIndex := random(length(arrTeams));
@@ -369,6 +363,22 @@ begin
       begin
         makeAlloc(arrMatchTeams[J], sMatchID);
       end;
+      showMessage('Woop5');
+    end;
+
+    if not (iByes = 0) then
+    begin
+      setLength(arrByes, iByes);
+      for I := 0 to iByes - 1 do
+      begin
+        iIndex := random(length(arrTeams));
+        arrByes[I] := arrTeams[iIndex];
+        Delete(arrTeams, iIndex, 1);
+
+        // make allocation
+        // find a way to allow null
+        makeAlloc(arrByes[I], '000');
+      end; // for I
     end;
 
     // Update DB
@@ -411,7 +421,6 @@ begin
 
   makeFixtures(arrWB,False);
   makeFixtures(arrLB, True);
-
   comboBoxUpdate();
   saveTournament();
   display();
