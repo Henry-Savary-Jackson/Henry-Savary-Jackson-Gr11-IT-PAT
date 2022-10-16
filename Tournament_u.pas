@@ -24,11 +24,12 @@ type
     procedure display();
     procedure cmbRoundChange(Sender: TObject);
     procedure btnBeginTournamentClick(Sender: TObject);
-    procedure makeFixtures(arr: TArray<string>; LB : boolean);
+    procedure makeFixtures(arr: TArray<string>; LB: boolean);
     procedure saveTournament();
     procedure btnNextRndClick(Sender: TObject);
     function calcByes(iTeams: integer): integer;
-    function makeMatch(sTeamOne, sTeamTwo: string; dDate: TDate; LB : boolean): string;
+    function makeMatch(sTeamOne, sTeamTwo: string; dDate: TDate;
+      LB: boolean): string;
     procedure makeAlloc(sTeam: string; sMatchID: string);
     procedure chbLoserBracketClick(Sender: TObject);
     procedure comboBoxUpdate();
@@ -49,7 +50,7 @@ var
   arrMatchID, arrAllocID, arrWB, arrLB: TArray<string>;
   util: Utils;
   fTournament: TextFile;
-  dDate : TDate;
+  dDate: TDate;
 
 const
   fileName = 'Tournament.txt';
@@ -70,7 +71,7 @@ end;
 
 procedure TfrmTournament.comboBoxUpdate();
 var
-I : integer;
+  I: integer;
 begin
   cmbRound.Items.Clear;
   for I := 1 to iRound do
@@ -86,7 +87,7 @@ end;
 
 procedure TfrmTournament.FormShow(Sender: TObject);
 var
-I :integer;
+  I: integer;
 begin
 
   comboBoxUpdate();
@@ -98,7 +99,7 @@ begin
     TeamTB.Open;
 
     // add rounds to the combo box
-    dDate := StrToDate(InputBox('Date','enter date:' ,''));
+    dDate := StrToDate(InputBox('Date', 'enter date:', ''));
     // update list box
     display();
     redTeams.Lines.Clear;
@@ -119,7 +120,7 @@ begin
     TeamTB.Filter := 'NumLost = 1';
     TeamTB.First;
     I := 0;
-    redTeams.Lines.Add( #13 + 'Losers'' bracket:');
+    redTeams.Lines.Add(#13 + 'Losers'' bracket:');
     while not TeamTB.Eof do
     begin
       I := I + 1;
@@ -169,8 +170,8 @@ begin
   end;
 end;
 
-function TfrmTournament.makeMatch(sTeamOne, sTeamTwo: string;
-  dDate: TDate; LB : boolean): string;
+function TfrmTournament.makeMatch(sTeamOne, sTeamTwo: string; dDate: TDate;
+  LB: boolean): string;
 var
   sMatchID: string;
 begin
@@ -272,14 +273,14 @@ end;
 
 procedure TfrmTournament.chbLoserBracketClick(Sender: TObject);
 var
-bLB : boolean;
+  bLB: boolean;
 begin
 
-bLB := chbLoserBracket.Checked;
-display();
+  bLB := chbLoserBracket.Checked;
+  display();
 end;
 
-procedure TfrmTournament.makeFixtures(arr: TArray<string>; LB : boolean);
+procedure TfrmTournament.makeFixtures(arr: TArray<string>; LB: boolean);
 var
   arrTeams, arrByes: TArray<string>;
   arrMatchTeams: array [0 .. 1] of string;
@@ -290,35 +291,45 @@ begin
   begin
     // calculate byes for next round
     iByes := calcByes(length(arr));
-    //copy array of teams
+    // copy array of teams
     arrTeams := copy(arr, 0, length(arr));
     // number of teams that will play in this round
     iTeams := length(arr) - iByes;
 
     setLength(arrByes, 0);
-    
-    if not(iRound = 1)then
+
+    if not(iRound = 1) then
     begin
-      MatchAllocTB.Filter := 'MatchID = '+ QuotedStr('000');
+      // Problem must distinguish byes in LB and Wb
+
+      MatchAllocTB.Filter := 'MatchID = ' + QuotedStr('000');
       MatchAllocTB.Filtered := true;
       MatchAllocTB.First;
       // get Byes from previous round nad remove them from arrTeams
       I := 0;
-      setLength(arrByes, MatchAllocTB.RecordCount);
+
+      showMessage('Num byes: ' + intToStr(length(arrByes)));
+      showMessage(intToStr(MatchAllocTB.RecordCount));
+
       while not MatchAllocTB.Eof do
       begin
-        showMessage('Byes');
-        setLength(arrByes, length(arrByes) + 1);
-        arrByes[I] := MatchAllocTB['TeamName'];
-        Delete(arrTeams, util.searchList(arrTeams, arrByes[I]), 1);
-        // Iteams := Iteams -1;
-        I := I + 1;
+        //showMessage('Byes');
+        util.goToRecord(MatchTB, 'MatchID', MatchAllocTB['MatchID']);
+        if MatchTB['LosersBracket'] = LB then
+        begin
+          setLength(arrByes, length(arrByes) + 1);
+          arrByes[I] := MatchAllocTB['TeamName'];
+          Delete(arrTeams, util.searchList(arrTeams, arrByes[I]), 1);
+          showMessage('Bye in bracket');
+          I := I + 1;
+        end;
+
         MatchAllocTB.Next;
       end;
       MatchAllocTB.Filtered := false;
       MatchAllocTB.First;
 
-      showMessage('Num byes: '  + intToStr(Length(arrByes)) );
+      showMessage('Num byes: ' + intToStr(length(arrByes)));
       // make sure each bye from the previous round gets a match
       for I := 0 to length(arrByes) - 1 do
       begin
@@ -326,21 +337,18 @@ begin
         iIndex := random(length(arrTeams));
         arrMatchTeams[1] := arrTeams[iIndex];
         Delete(arrTeams, iIndex, 1);
-        showMessage('Woop');
         dDate := dDate + 4;
-
         sMatchID := makeMatch(arrMatchTeams[0], arrMatchTeams[1], dDate, LB);
-        showMessage('Woop1');
-        MatchAllocTB.Filter := 'MatchID = '+ QuotedStr('000');
+        MatchAllocTB.Filter := 'MatchID = ' + QuotedStr('000');
         MatchAllocTB.Filtered := true;
         // go to the bye's allocation record, and give it its new match foreign key
         util.goToRecord(MatchAllocTB, 'TeamName', arrMatchTeams[0]);
         MatchAllocTB.Edit;
         MatchAllocTB['MatchID'] := sMatchID;
         MatchAllocTB.Filtered := false;
-         showMessage('Woop2');
+        // showMessage('Woop2');
         makeAlloc(arrMatchTeams[1], sMatchID);
-         showMessage('Woop3');
+        // showMessage('Woop3');
 
       end; // for I
       // showMessage('woop5') ;
@@ -350,7 +358,6 @@ begin
     // create matches with the remaining teams until there aren't enough for a match
     while length(arrTeams) >= 2 do
     begin
-      showMessage('Woop4');
       for J := 0 to 1 do
       begin
         iIndex := random(length(arrTeams));
@@ -363,18 +370,18 @@ begin
       begin
         makeAlloc(arrMatchTeams[J], sMatchID);
       end;
-      showMessage('Woop5');
+
     end;
 
-    if not (iByes = 0) then
+    if not(iByes = 0) then
     begin
+      showMessage('Next round byes');
       setLength(arrByes, iByes);
       for I := 0 to iByes - 1 do
       begin
         iIndex := random(length(arrTeams));
         arrByes[I] := arrTeams[iIndex];
         Delete(arrTeams, iIndex, 1);
-
         // make allocation
         // find a way to allow null
         makeAlloc(arrByes[I], '000');
@@ -392,7 +399,6 @@ begin
     MatchTB.Refresh;
     MatchTB.First;
 
-    ShowMessage('Fixtures made!');
 
   end; // Datamodule
 
@@ -401,16 +407,17 @@ end;
 procedure TfrmTournament.btnBeginTournamentClick(Sender: TObject);
 begin
   iRound := 1;
-  makeFixtures(arrWB,False);
+  makeFixtures(arrWB, false);
 
   btnBeginTournament.Enabled := false;
 
   bBegin := true;
 
+  showMessage('Fixtures made!');
+
   comboBoxUpdate();
   saveTournament();
   display();
-
 
 end;
 
@@ -419,11 +426,16 @@ begin
 
   iRound := iRound + 1;
 
-  makeFixtures(arrWB,False);
-  makeFixtures(arrLB, True);
+  makeFixtures(arrWB, false);
+  makeFixtures(arrLB, true);
+
+  showMessage('Fixtures made!');
+
   comboBoxUpdate();
   saveTournament();
   display();
+
+  btnNextRnd.Enabled := false;
 
 end;
 
@@ -455,11 +467,11 @@ begin
 
       if chbLoserBracket.Checked then
       begin
-        MatchTB.Filter:= 'LosersBracket = True'
+        MatchTB.Filter := 'LosersBracket = True'
       end
       else
       begin
-        MatchTB.Filter:= 'LosersBracket = False'
+        MatchTB.Filter := 'LosersBracket = False'
       end;
       MatchTB.Filtered := true;
 
@@ -499,7 +511,7 @@ begin
       end;
       MatchTB.First;
       MatchAllocTB.First;
-      MatchTB.Filtered := False;
+      MatchTB.Filtered := false;
 
     end;
 
