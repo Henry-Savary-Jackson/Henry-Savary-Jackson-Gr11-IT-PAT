@@ -37,6 +37,9 @@ var
   frmSignUp: TfrmSignUp;
   fSupervisors: TextFile;
   arrOrganiserID: array of string;
+  bBegin : boolean;
+  sID , sUsername: string;
+  iRound, iUser: integer;
 
 const
   fileName = 'Supervisors.txt';
@@ -57,8 +60,7 @@ end;
 
 procedure TfrmSignUp.btnSignUpClick(Sender: TObject);
 var
-  sUsername, sID, sPassword, sLine: string;
-  iUser: integer;
+  sPassword, sLine: string;
   bRegistered: boolean;
 begin
   //Input
@@ -277,6 +279,7 @@ end;
 procedure TfrmSignUp.FormShow(Sender: TObject);
 var
   I: integer;
+  sLine : string;
 begin
   // set up title
   lblAppTitle.Caption := 'CAPE TOWN' + #13 + ' SOCCER TOURNAMENT ' + #13 +
@@ -307,6 +310,40 @@ begin
       I := I + 1;
       OrganiserTB.Next;
     end;
+
+  end;
+
+  iRound := 1;
+  bBegin := false;
+  if not FileExists(fileName) then
+  begin
+
+    AssignFile(fTournament, fileName);
+    ReWrite(fTournament);
+    Writeln(fTournament, 'Begun: F');
+    Writeln(fTournament, 'CurrentRound: 1');
+    CloseFile(fTournament);
+  end
+  else
+  begin
+    AssignFile(fTournament, fileName);
+
+    Reset(fTournament);
+    Readln(fTournament, sLine);
+
+    Delete(sLine, 1, pos(' ', sLine));
+    case sLine[1] of
+      'T':
+        bBegin := true;
+      'F':
+        bBegin := false;
+    end;
+
+    Readln(fTournament, sLine);
+    Delete(sLine, 1, pos(' ', sLine));
+
+    iRound := strToInt(sLine);
+    CloseFile(fTournament);
 
   end;
 end;

@@ -23,6 +23,8 @@ type
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure btnSignUpClick(Sender: TObject);
     procedure FormShow(Sender: TObject);
+    function NotifySupervisor(sID: string; iUser: integer): boolean;
+
   private
     { Private declarations }
   public
@@ -33,12 +35,15 @@ var
   frmLogin: TfrmLogin;
   fSupervisors: TextFile;
   arrOrganiserID: array of string;
+  iRound : integer;
+  bBegin : boolean;
 
 implementation
 
 uses
   Main_u,
-  SignUp_u;
+  SignUp_u,
+  Match_u;
 
 {$R *.dfm}
 
@@ -110,12 +115,75 @@ begin
     frmMain.iUser := iUser;
     frmMain.sUsername := sUsername;
 
-    // Naviguate to main screen
-    frmLogin.Hide;
-    frmMain.Show;
+    if NotifySupervisor(frmMain.sID, iUser) then
+    begin;
+      // Naviguate to match screen
+      frmLogin.Hide;
+      frmMatch.Show;
+    end
+    else
+    begin
+      // Naviguate to main screen
+      frmLogin.Hide;
+      frmMain.Show;
+    end;
 
   end;
 
+end;
+
+function TfrmLogin.NotifySupervisor(sID: string; iUser: integer): boolean;
+var
+  sMatchID, sTeamOne, sTeamTwo: string;
+  dDate: TDate;
+begin
+  with DataModule1 do
+  begin
+    if iUser = 1 then
+    begin
+      dDate := StrToDate(InputBox('Date', 'enter date:', ''));
+      MatchTB.Filter := 'MatchDate = ' + DateToStr(dDate) +
+        ' AND  SupervisorID = ' + QuotedStr(sID) + '';
+      MatchTB.Filtered := true;
+      if not(MatchTB.RecordCount = 0) then
+      begin
+        MatchTB.First;
+        sMatchID := MatchTB['MatchID'];
+        MatchAllocTB.Filter := 'MatchID = ' + QuotedStr(sMatchID);
+        MatchAllocTB.Filtered := true;
+        MatchAllocTB.First;
+        sTeamOne := MatchAllocTB['TeamName'];
+        MatchAllocTB.Next;
+        sTeamTwo := MatchAllocTB['TeamName'];
+        if MessageDlg('You have to umpire the match ' + sTeamOne + ' vs ' +
+          sTeamTwo + ' today. Do you want to enter results now?',
+          mtConfirmation, [mbYes, mbNo], 0, mbYes) = mrYes then
+        begin
+          frmMatch.matchID := sMatchID;
+          setLength(frmMatch.arrAllocID, 2);
+          frmMatch.arrAllocID[0] := sTeamOne;
+          frmMatch.arrAllocID[1] := sTeamTwo;
+          frmMatch.iUser := iUser;
+          frmMatch.sID := sID;
+          frmMatch.dDate := dDate;
+
+          Result := true;
+
+        end
+        else
+          Result := false;
+
+      end
+      else
+        Result := false;
+
+    end
+    else
+    begin
+      Result := false;
+    end;
+
+  end;
 end;
 
 procedure TfrmLogin.btnSignUpClick(Sender: TObject);
@@ -133,6 +201,7 @@ end;
 procedure TfrmLogin.FormShow(Sender: TObject);
 var
   I: integer;
+  sLine : string;
 begin
   // set up title
   lblAppTitle.Caption := 'CAPE TOWN' + #13 + ' SOCCER TOURNAMENT ' + #13 +
@@ -143,6 +212,42 @@ begin
   begin
     OrganiserTB.Open;
     SupervisorTB.Open;
+    MatchTB.Open;
+    MatchAllocTB.Open;
+
+  end;
+
+  iRound := 1;
+  bBegin := false;
+  if not FileExists(fileName) then
+  begin
+
+    AssignFile(fTournament, fileName);
+    ReWrite(fTournament);
+    Writeln(fTournament, 'Begun: F');
+    Writeln(fTournament, 'CurrentRound: 1');
+    CloseFile(fTournament);
+  end
+  else
+  begin
+    AssignFile(fTournament, fileName);
+
+    Reset(fTournament);
+    Readln(fTournament, sLine);
+
+    Delete(sLine, 1, pos(' ', sLine));
+    case sLine[1] of
+      'T':
+        bBegin := true;
+      'F':
+        bBegin := false;
+    end;
+
+    Readln(fTournament, sLine);
+    Delete(sLine, 1, pos(' ', sLine));
+
+    iRound := strToInt(sLine);
+    CloseFile(fTournament);
 
   end;
 

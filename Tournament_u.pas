@@ -37,9 +37,10 @@ type
     { Private declarations }
   public
     { Public declarations }
-    sID: string;
+    sID, sUsername: string;
     iUser, iRound: integer;
     bBegin: boolean;
+    dDate: TDate;
   end;
 
 var
@@ -50,7 +51,6 @@ var
   arrMatchID, arrAllocID, arrWB, arrLB: TArray<string>;
   util: Utils;
   fTournament: TextFile;
-  dDate: TDate;
 
 const
   fileName = 'Tournament.txt';
@@ -99,7 +99,6 @@ begin
     TeamTB.Open;
 
     // add rounds to the combo box
-    dDate := StrToDate(InputBox('Date', 'enter date:', ''));
     // update list box
     display();
     redTeams.Lines.Clear;
@@ -290,6 +289,7 @@ begin
   with DataModule1 do
   begin
     // calculate byes for next round
+
     iByes := calcByes(length(arr));
     // copy array of teams
     arrTeams := copy(arr, 0, length(arr));
@@ -297,6 +297,7 @@ begin
     iTeams := length(arr) - iByes;
 
     setLength(arrByes, 0);
+
 
     if not(iRound = 1) then
     begin

@@ -29,8 +29,8 @@ type
   public
     { Public declarations }
     sID, sUsername: string;
-    iUser, iNumRounds: integer;
-    bBegin : boolean;
+    iUser, iRound: integer;
+    bBegin: boolean;
 
     // 0 = organiser
     // 1 = supervisor
@@ -38,7 +38,7 @@ type
 
 var
   frmMain: TfrmMain;
-  fTournament : TextFile;
+  fTournament: TextFile;
 
 const
   fileName = 'Tournament.txt';
@@ -50,7 +50,8 @@ uses
   Supervisors_u,
   Teams_u,
   Tournament_u,
-  Help_u;
+  Help_u,
+  Match_u;
 
 {$R *.dfm}
 
@@ -84,9 +85,10 @@ procedure TfrmMain.btnTournamentClick(Sender: TObject);
 begin
   frmTournament.iUser := iUser;
   frmTournament.sID := sID;
-  frmTournament.iRound := iNumRounds;
+  frmTournament.iRound := iRound;
   frmTournament.bBegin := bBegin;
   frmTournament.Show;
+  frmTournament.dDate := StrToDate(InputBox('Date', 'enter date:', ''));
   frmMain.Hide;
 end;
 
@@ -96,8 +98,6 @@ begin
 end;
 
 procedure TfrmMain.FormShow(Sender: TObject);
-var
-sLine : string;
 begin
   with DataModule1 do
   begin
@@ -105,46 +105,15 @@ begin
     SupervisorTB.Open;
 
   end;
+
   lblWelcome.Caption := 'Welcome ' + sUsername;
-
-  iNumRounds := 1;
-  bBegin := false;
-  if not FileExists(fileName) then
-  begin
-
-    AssignFile(fTournament, fileName);
-    ReWrite(fTournament);
-    Writeln(fTournament,'Begun: F');
-    Writeln(fTournament,'CurrentRound: 1');
-    CloseFile(fTournament);
-  end
-  else
-  begin
-    AssignFile(fTournament, fileName);
-
-    Reset(fTournament);
-    Readln(fTournament, sLine);
-
-    Delete(sLine,1, pos(' ', sLine));
-    case sLine[1] of
-      'T': bBegin := true;
-      'F': bBegin := false;
-    end;
-
-    Readln(fTournament, sLine);
-    Delete(sLine,1, pos(' ', sLine));
-
-    iNumRounds := strToInt(sLine);
-    CloseFile(fTournament);
-
-    end;
 
   case iUser of
 
     0:
       begin
         btnTeams.Enabled := not bBegin;
-        btnSupervisors.Enabled := True;
+        btnSupervisors.Enabled := true;
       end;
     1:
       begin

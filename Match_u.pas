@@ -36,6 +36,7 @@ type
     iUser: integer;
     editable: boolean;
     dDate : tDate;
+    bBegin : boolean
 
   end;
 
