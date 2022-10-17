@@ -65,6 +65,11 @@ uses
 
 procedure TfrmTournament.btnBackClick(Sender: TObject);
 begin
+  frmMain.sID := sID;
+  frmMain.sUsername := sUsername;
+  frmMain.iUser := iUser;
+  frmMain.bBegin := bBegin;
+  frmMain.iRound := iRound;
   frmMain.Show;
   frmTournament.Hide;
 end;
@@ -89,7 +94,6 @@ procedure TfrmTournament.FormShow(Sender: TObject);
 var
   I: integer;
 begin
-
   comboBoxUpdate();
   // open tables
   with DataModule1 do

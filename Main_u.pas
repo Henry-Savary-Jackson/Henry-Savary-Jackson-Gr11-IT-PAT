@@ -31,6 +31,7 @@ type
     sID, sUsername: string;
     iUser, iRound: integer;
     bBegin: boolean;
+    dDate : TDate;
 
     // 0 = organiser
     // 1 = supervisor
@@ -39,9 +40,6 @@ type
 var
   frmMain: TfrmMain;
   fTournament: TextFile;
-
-const
-  fileName = 'Tournament.txt';
 
 implementation
 
@@ -88,7 +86,7 @@ begin
   frmTournament.iRound := iRound;
   frmTournament.bBegin := bBegin;
   frmTournament.Show;
-  frmTournament.dDate := StrToDate(InputBox('Date', 'enter date:', ''));
+  frmTournament.dDate := dDate;
   frmMain.Hide;
 end;
 

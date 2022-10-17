@@ -31,9 +31,9 @@ type
     { Private declarations }
   public
     { Public declarations }
-    matchID, sID: string;
+    matchID, sUsername, sID: string;
     arrAllocID: TArray<string>;
-    iUser: integer;
+    iUser, iRound: integer;
     editable: boolean;
     dDate : tDate;
     bBegin : boolean
@@ -54,6 +54,12 @@ uses
 
 procedure TfrmMatch.btnBackClick(Sender: TObject);
 begin
+  frmTournament.iRound := iROund;
+  frmTournament.sUsername := sUsername;
+  frmTournament.bBegin := bBegin;
+  frmTournament.iUser := iUser;
+  frmTournament.sID := sID;
+  frmTournament.dDate := dDate;
   frmMatch.Hide;
   frmTournament.Show;
 end;
@@ -156,8 +162,7 @@ begin
     showMessage('Changes saved!');
 
     //naviguate back to tournament screen
-    frmMatch.Hide;
-    frmTournament.Show;
+    btnBack.Click;
 
   end;
 end;
@@ -179,6 +184,7 @@ begin
     MatchTB.Open;
     MatchAllocTB.Open;
     SupervisorTB.Open;
+    TeamTB.Open;
 
     util.goToRecord(MatchAllocTB, 'AllocID', arrAllocID[0]);
     sTeamOne := MatchAllocTB['TeamName'];

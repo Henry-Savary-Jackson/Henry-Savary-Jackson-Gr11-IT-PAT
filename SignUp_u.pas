@@ -31,18 +31,18 @@ type
     { Private declarations }
   public
     { Public declarations }
+    bBegin: boolean;
+    sID, sUsername: string;
+    iRound, iUser: integer;
   end;
 
 var
   frmSignUp: TfrmSignUp;
   fSupervisors: TextFile;
   arrOrganiserID: array of string;
-  bBegin : boolean;
-  sID , sUsername: string;
-  iRound, iUser: integer;
 
 const
-  fileName = 'Supervisors.txt';
+  fileNameSup = 'Supervisors.txt';
 
 implementation
 
@@ -62,8 +62,9 @@ procedure TfrmSignUp.btnSignUpClick(Sender: TObject);
 var
   sPassword, sLine: string;
   bRegistered: boolean;
+  dDate: tDate;
 begin
-  //Input
+  // Input
   iUser := cmbUser.ItemIndex;
 
   sUsername := edtUsername.Text;
@@ -82,13 +83,13 @@ begin
   begin
     // verify , given a user is supervisor, that they are in the regitered supervisors
     // text file.
-    if not FileExists(fileName) then
+    if not FileExists(fileNameSup) then
     begin
       showMessage('Error: cannot find list of supervisors.');
       Exit;
     end;
 
-    AssignFile(fSupervisors, fileName);
+    AssignFile(fSupervisors, fileNameSup);
 
     Reset(fSupervisors);
     bRegistered := false;
@@ -244,10 +245,14 @@ begin
 
   end;
 
+  dDate := StrToDate(InputBox('Date:', 'Enter Date:', ''));
+
   // send data to main screen
   frmMain.iUser := iUser;
   frmMain.sUsername := sUsername;
   frmMain.sID := sID;
+  frmMain.dDate := dDate;
+  frmMain.bBegin := bBegin;
 
   // open main screen
   frmSignUp.Hide;
@@ -257,8 +262,8 @@ end;
 
 procedure TfrmSignUp.cmbUserChange(Sender: TObject);
 begin
-//hides/shows combo box for their organiser based on whether user is a supervisor
-//or not
+  // hides/shows combo box for their organiser based on whether user is a supervisor
+  // or not
   if cmbUser.ItemIndex = 1 then
   begin
     lblOrganiser.Show;
@@ -279,7 +284,7 @@ end;
 procedure TfrmSignUp.FormShow(Sender: TObject);
 var
   I: integer;
-  sLine : string;
+  sLine: string;
 begin
   // set up title
   lblAppTitle.Caption := 'CAPE TOWN' + #13 + ' SOCCER TOURNAMENT ' + #13 +
@@ -315,10 +320,10 @@ begin
 
   iRound := 1;
   bBegin := false;
-  if not FileExists(fileName) then
+  if not FileExists(fileNameSup) then
   begin
 
-    AssignFile(fTournament, fileName);
+    AssignFile(fTournament, fileNameSup);
     ReWrite(fTournament);
     Writeln(fTournament, 'Begun: F');
     Writeln(fTournament, 'CurrentRound: 1');
@@ -326,7 +331,7 @@ begin
   end
   else
   begin
-    AssignFile(fTournament, fileName);
+    AssignFile(fTournament, fileNameSup);
 
     Reset(fTournament);
     Readln(fTournament, sLine);
