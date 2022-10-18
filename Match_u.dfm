@@ -2,7 +2,7 @@ object frmMatch: TfrmMatch
   Left = 0
   Top = 0
   Caption = 'Edit Match'
-  ClientHeight = 260
+  ClientHeight = 273
   ClientWidth = 351
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET

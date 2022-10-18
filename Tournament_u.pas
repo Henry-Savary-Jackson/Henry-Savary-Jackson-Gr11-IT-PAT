@@ -302,6 +302,10 @@ begin
 
     setLength(arrByes, 0);
 
+    if length(arrTeams) = 1 then
+    begin
+      Exit;
+    end;
 
     if not(iRound = 1) then
     begin
@@ -318,7 +322,7 @@ begin
 
       while not MatchAllocTB.Eof do
       begin
-        //showMessage('Byes');
+        // showMessage('Byes');
         util.goToRecord(MatchTB, 'MatchID', MatchAllocTB['MatchID']);
         if MatchTB['LosersBracket'] = LB then
         begin
@@ -404,7 +408,6 @@ begin
     MatchTB.Refresh;
     MatchTB.First;
 
-
   end; // Datamodule
 
 end;
@@ -427,20 +430,59 @@ begin
 end;
 
 procedure TfrmTournament.btnNextRndClick(Sender: TObject);
+var
+arrFinalTeams : TArray<string> ;
+numTeams : integer;
 begin
 
-  iRound := iRound + 1;
+  with DataModule1 do
+  begin
 
-  makeFixtures(arrWB, false);
-  makeFixtures(arrLB, true);
+    TeamTB.Filter := 'NumLost < 2';
+    TeamTB.Filtered := true;
 
-  showMessage('Fixtures made!');
+    numTeams := TeamTB.RecordCount;
 
-  comboBoxUpdate();
-  saveTournament();
-  display();
+    TeamTB.Filtered := false;
 
-  btnNextRnd.Enabled := false;
+    if numTeams > 2 then
+    begin
+      // most of tournament
+      iRound := iRound + 1;
+
+      makeFixtures(arrWB, false);
+      makeFixtures(arrLB, true);
+      showMessage('Fixtures made!');
+    end
+    else if numTeams= 2 then
+    begin
+      // final match
+      TeamTB.First;
+      SetLength(arrFinalTeams, 2);
+      arrFinalTeams[0] := TeamTB['TeamName'];
+      TeamTB.Next;
+      arrFinalTeams[1] :=  TeamTB['TeamName'];
+
+      iRound := iRound + 1;
+
+      makeFixtures(arrFinalTeams,false);
+      showMessage('Fixtures made!');
+
+    end
+    else
+    begin
+      // end of tournament
+
+
+    end;
+
+    comboBoxUpdate();
+    saveTournament();
+    display();
+
+    btnNextRnd.Enabled := false;
+
+  end;
 
 end;
 
