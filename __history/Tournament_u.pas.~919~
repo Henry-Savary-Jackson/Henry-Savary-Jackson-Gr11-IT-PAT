@@ -332,7 +332,7 @@ begin
         if MatchTB['LosersBracket'] = LB then
         begin
           setLength(arrByes, length(arrByes) + 1);
-          showMessage(MatchAllocTB['TeamName']);
+          ShowMessage(MatchAllocTB['TeamName']);
           arrByes[I] := MatchAllocTB['TeamName'];
           Delete(arrTeams, util.SearchList(arrTeams, arrByes[I]), 1);
           showMessage('Bye in bracket');
@@ -378,7 +378,7 @@ begin
       for J := 0 to 1 do
       begin
         iIndex := random(length(arrTeams));
-        showMessage(' rem arrteams: ' + arrTeams[iIndex]);
+        ShowMessage(' rem arrteams: ' + arrTeams[iIndex]);
         arrMatchTeams[J] := arrTeams[iIndex];
         Delete(arrTeams, iIndex, 1);
       end; // for
@@ -440,9 +440,9 @@ end;
 
 procedure TfrmTournament.btnNextRndClick(Sender: TObject);
 var
-  arrFinalTeams: TArray<string>;
-  remainingTeams, I: integer;
-  arrPodium: array [0 .. 2] of string;
+arrFinalTeams : TArray<string> ;
+remainingTeams : integer;
+arrPodium : array[0..2] of string;
 begin
 
   with DataModule1 do
@@ -468,36 +468,28 @@ begin
     begin
       // final match
       TeamTB.First;
-      setLength(arrFinalTeams, 2);
+      SetLength(arrFinalTeams, 2);
       arrFinalTeams[0] := TeamTB['TeamName'];
       TeamTB.Next;
-      arrFinalTeams[1] := TeamTB['TeamName'];
+      arrFinalTeams[1] :=  TeamTB['TeamName'];
 
       iRound := iRound + 1;
 
-      MakeFixtures(arrFinalTeams, false);
+      MakeFixtures(arrFinalTeams,false);
       showMessage('Fixtures made!');
 
     end
     else
     begin
       // end of tournament
-      TeamTB.Sort := 'TournamentPosition DESC';
+      TeamTB.Filter := 'TournamentPosition = 1';
+      TeamTB.Filtered := true;
+      {s1stTeams
       TeamTB.First;
-      for I := 0 to 2 do
-      begin
-        arrPodium[I] := TeamTB['TeamName'];
-      end;
+      }
+      //TODO : add
+      //showMessage('');
 
-
-      redTeams.Lines.Clear;
-      redTeams.Lines.Add('1st Place: ' + arrPodium[0]);
-      redTeams.Lines.Add('2nd Place: ' + arrPodium[1]);
-      redTeams.Lines.Add('3rd Place: ' + arrPodium[2]);
-
-      showMessage('Tournament is over!');
-
-      //TODO make program and button understand tournament over
     end;
 
     ComboBoxUpdate();

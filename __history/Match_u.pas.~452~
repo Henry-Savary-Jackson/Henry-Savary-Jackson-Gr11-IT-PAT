@@ -31,7 +31,6 @@ type
     procedure btnFinaliseClick(Sender: TObject);
     procedure saveMatch();
     procedure saveAllocs();
-    procedure setWinner(sWinnerAllocID, sLoserAllocID: string);
   private
     { Private declarations }
   public
@@ -39,8 +38,9 @@ type
     matchID, sUsername, sID: string;
     arrAllocID: TArray<string>;
     iUser, iTournRound, iMatchRound: integer;
-    bBeforeEditable, bFinished, bBegin, bLB: boolean;
+    bBeforeEditable, bFinished: boolean;
     dDate: tDate;
+    bBegin: boolean
 
     end;
 
@@ -124,8 +124,6 @@ begin
     dtpDate.Date := MatchTB['MatchDate'];
 
     iMatchRound := MatchTB['Round'];
-
-    bLB := MatchTB['LosersBracket'];
 
     // only allows the match to be editable on the day of the match
     bBeforeEditable := dDate <= MatchTB['MatchDate'];
@@ -237,7 +235,6 @@ begin
 
     bDraw := (iScoreOne = iScoreTwo);
 
-    // TODO : get whether LB or not
     if bDraw then
     begin
       MatchTB.Filter := 'Round = ' + intToStr(iMatchRound);
@@ -251,7 +248,6 @@ begin
 
     // Edit MatchAllocTB
 
-    //Edit score
     util.GoToRecord(MatchAllocTB, 'AllocID', arrAllocID[0]);
     MatchAllocTB.Edit;
     if not bDraw then
@@ -263,7 +259,6 @@ begin
       MatchAllocTB['Score'] := 0;
     end;
 
-    //Edit Score
     util.GoToRecord(MatchAllocTB, 'AllocID', arrAllocID[1]);
     MatchAllocTB.Edit;
     if not bDraw then
@@ -274,23 +269,44 @@ begin
     begin
       MatchAllocTB['Score'] := 0;
     end;
+    util.GoToRecord(MatchAllocTB, 'AllocID', arrAllocID[0]);
 
-    
     if not bDraw then
     begin
-       //If there wasn't a draw, decide winner and loser
+
       if iScoreOne > iScoreTwo then
       begin
-        setWinner(arrAllocID[0], arrAllocID[1]);
+ MatchAllocTB.Edit;
+        MatchAllocTB['Won'] := true;
+        // next
+        util.GoToRecord(MatchAllocTB, 'AllocID', arrAllocID[1]);
+        MatchAllocTB.Edit;
+        MatchAllocTB['Won'] := false;
 
+        util.GoToRecord(TeamTB, 'TeamName', sTeamOne);
+        TeamTB.Edit;
+        TeamTB['NumWon'] := TeamTB['NumWon'] + 1;
+        util.GoToRecord(TeamTB, 'TeamName', sTeamTwo);
+        TeamTB.Edit;
+        TeamTB['NumLost'] := TeamTB['NumLost'] + 1;
       end
       else if iScoreOne < iScoreTwo then
       begin
-        setWinner(arrAllocID[1], arrAllocID[0]);
+        util.GoToRecord(MatchAllocTB, 'AllocID', arrAllocID[1]);
+        MatchAllocTB.Edit;
+        MatchAllocTB['Won'] := true;
+        util.GoToRecord(MatchAllocTB, 'AllocID', arrAllocID[0]);
+        MatchAllocTB.Edit;
+        MatchAllocTB['Won'] := false;
 
+        util.GoToRecord(TeamTB, 'TeamName', sTeamTwo);
+        TeamTB.Edit;
+        TeamTB['NumWon'] := TeamTB['NumWon'] + 1;
+        util.GoToRecord(TeamTB, 'TeamName', sTeamOne);
+        TeamTB.Edit;
+        TeamTB['NumLost'] := TeamTB['NumLost'] + 1;
       end;
 
-      //set this Match to be finished
       bFinished := true;
     end // if bDraw
     else
@@ -304,8 +320,6 @@ begin
     util.UpdateTB(MatchAllocTB);
 
     util.UpdateTB(MatchTB);
-
-    util.UpdateTB(TeamTB);
 
   end;
 end;
@@ -350,72 +364,13 @@ begin
     MatchTB['Finished'] := bFinished;
 
     // Update DB
-    util.UpdateTB(MatchTB);
+    MatchTB.Edit;
+    MatchTB.Post;
+    MatchTB.Refresh;
+    MatchTB.First;
 
   end;
 
-end;
-
-procedure TfrmMatch.setWinner(sWinnerAllocID, sLoserAllocID: string);
-var
-  iNumTeams: integer;
-  sWinnerTeam, sLoserTeam: string;
-begin
-  //
-  with DataModule1 do
-  begin
-
-    TeamTB.Filter := 'NumLost < 2';
-    TeamTB.Filtered := true;
-    iNumTeams := TeamTB.RecordCount;
-    TeamTB.Filtered := false;
-
-    //Edit winner's alloc record
-    util.GoToRecord(MatchAllocTB, 'AllocID', sWinnerAllocID);
-    sWinnerTeam := MatchAllocTB['TeamName'];
-    MatchAllocTB.Edit;
-    MatchAllocTB['Won'] := true;
-
-    //Edit loser's alloc record
-    util.GoToRecord(MatchAllocTB, 'AllocID', sLoserAllocID);
-    sLoserTeam := MatchAllocTB['TeamName'];
-    MatchAllocTB.Edit;
-    MatchAllocTB['Won'] := false;
-
-    //Change Numwon
-    util.GoToRecord(TeamTB, 'TeamName', sWinnerAllocID);
-    TeamTB.Edit;
-    TeamTB['NumWon'] := TeamTB['NumWon'] + 1;
-    
-    //Change NumLost
-    util.GoToRecord(TeamTB, 'TeamName', sLoserAllocID);
-    TeamTB.Edit;
-    TeamTB['NumLost'] := TeamTB['NumLost'] + 1;
-
-    //Determine 1st, 2nd and 3rd place
-    case iNumTeams of
-      2:
-        begin
-          util.GoToRecord(TeamTB, 'TeamName', sWinnerTeam);
-          TeamTB.Edit;
-          TeamTB['TournamentPosition'] := 1;
-          util.GoToRecord(TeamTB, 'TeamName', sLoserTeam);
-          TeamTB.Edit;
-          TeamTB['TournamentPosition'] := 2;
-        end;
-      3:
-        begin
-          if bLB then
-          begin
-            util.GoToRecord(TeamTB, 'TeamName', sLoserTeam);
-            TeamTB.Edit;
-            TeamTB['TournamentPosition'] := 3;
-          end;
-        end;
-
-    end;
-
-  end;
 end;
 
 end.

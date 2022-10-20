@@ -39,8 +39,9 @@ type
     matchID, sUsername, sID: string;
     arrAllocID: TArray<string>;
     iUser, iTournRound, iMatchRound: integer;
-    bBeforeEditable, bFinished, bBegin, bLB: boolean;
+    bBeforeEditable, bFinished: boolean;
     dDate: tDate;
+    bBegin, bLB: boolean
 
     end;
 
@@ -225,8 +226,8 @@ end;
 
 procedure TfrmMatch.saveAllocs;
 var
-  iScoreOne, iScoreTwo: integer;
-  bDraw: boolean;
+  iScoreOne, iScoreTwo, numTeams: integer;
+  bDraw, bLB: boolean;
 begin
   //
   with DataModule1 do
@@ -275,10 +276,9 @@ begin
       MatchAllocTB['Score'] := 0;
     end;
 
-    
     if not bDraw then
     begin
-       //If there wasn't a draw, decide winner and loser
+
       if iScoreOne > iScoreTwo then
       begin
         setWinner(arrAllocID[0], arrAllocID[1]);
@@ -290,7 +290,6 @@ begin
 
       end;
 
-      //set this Match to be finished
       bFinished := true;
     end // if bDraw
     else

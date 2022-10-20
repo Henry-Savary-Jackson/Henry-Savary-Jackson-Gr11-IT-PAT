@@ -225,8 +225,8 @@ end;
 
 procedure TfrmMatch.saveAllocs;
 var
-  iScoreOne, iScoreTwo: integer;
-  bDraw: boolean;
+  iScoreOne, iScoreTwo, numTeams: integer;
+  bDraw, bLB: boolean;
 begin
   //
   with DataModule1 do

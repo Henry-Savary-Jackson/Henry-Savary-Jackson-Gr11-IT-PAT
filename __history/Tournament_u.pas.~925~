@@ -491,13 +491,9 @@ begin
 
 
       redTeams.Lines.Clear;
-      redTeams.Lines.Add('1st Place: ' + arrPodium[0]);
-      redTeams.Lines.Add('2nd Place: ' + arrPodium[1]);
-      redTeams.Lines.Add('3rd Place: ' + arrPodium[2]);
 
       showMessage('Tournament is over!');
 
-      //TODO make program and button understand tournament over
     end;
 
     ComboBoxUpdate();

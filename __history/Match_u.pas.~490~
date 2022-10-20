@@ -39,8 +39,9 @@ type
     matchID, sUsername, sID: string;
     arrAllocID: TArray<string>;
     iUser, iTournRound, iMatchRound: integer;
-    bBeforeEditable, bFinished, bBegin, bLB: boolean;
+    bBeforeEditable, bFinished: boolean;
     dDate: tDate;
+    bBegin, bLB: boolean
 
     end;
 
@@ -225,8 +226,8 @@ end;
 
 procedure TfrmMatch.saveAllocs;
 var
-  iScoreOne, iScoreTwo: integer;
-  bDraw: boolean;
+  iScoreOne, iScoreTwo, numTeams: integer;
+  bDraw, bLB: boolean;
 begin
   //
   with DataModule1 do
