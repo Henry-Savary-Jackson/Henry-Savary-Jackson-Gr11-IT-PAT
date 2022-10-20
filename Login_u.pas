@@ -187,7 +187,7 @@ begin
           frmMatch.bBegin := bBegin;
           frmMatch.arrAllocID := arrAllocID;
           frmMatch.sUsername := sUsername;
-          frmMatch.iRound := iRound;
+          frmMatch.iTournRound := iRound;
           frmMatch.dDate := dDate;
 
           Result := true;

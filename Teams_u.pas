@@ -91,7 +91,7 @@ begin
   with DataModule1 do
   begin
 
-    util.goToRecord(TeamTB, 'TeamName', sName);
+    util.GoToRecord(TeamTB, 'TeamName', sName);
     TeamTB.Delete;
 
   end;

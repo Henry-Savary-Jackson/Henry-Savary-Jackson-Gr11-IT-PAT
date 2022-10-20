@@ -14,14 +14,15 @@ type
   public
     { public declarations }
     function isInTable(table: TADOTable; field: string; val: Variant): boolean;
-    function containsSpecialChar(str: string): boolean;
-    function containsDigit(str: string): boolean;
-    function goToRecord(table: TADOTable; pk: string; val: Variant): integer;
-    procedure goToRecordAfter(table: TADOTable; field: string; val: Variant;
+    function ContainsSpecialChar(str: string): boolean;
+    function ContainsDigit(str: string): boolean;
+    function GoToRecord(table: TADOTable; pk: string; val: Variant): integer;
+    procedure GoToRecordAfter(table: TADOTable; field: string; val: Variant;
       iOccurences: integer);
-    procedure goToNextRecord(table: TADOTable; field: string; val: Variant);
+    procedure GoToNextRecord(table: TADOTable; field: string; val: Variant);
     procedure insertElement<T>(arr: TArray<T>; e: T);
-    function searchList(arr: TArray<string>; e: string): integer;
+    procedure UpdateTB(table: TADOTable);
+    function SearchList(arr: TArray<string>; e: string): integer;
 
   end;
 
@@ -65,7 +66,7 @@ end;
 
 // goes to first record with a specified value after wherever the table's pointer
 // is located
-procedure Utils.goToNextRecord(table: TADOTable; field: string; val: Variant);
+procedure Utils.GoToNextRecord(table: TADOTable; field: string; val: Variant);
 begin
   with DataModule1 do
   begin
@@ -83,7 +84,7 @@ begin
   end;
 end;
 
-function Utils.searchList(arr: TArray<string>; e: string): integer;
+function Utils.SearchList(arr: TArray<string>; e: string): integer;
 var
   I: integer;
 begin
@@ -100,8 +101,17 @@ begin
   Result := -1;
 end;
 
+procedure Utils.UpdateTB(table: TADOTable);
+begin
+//
+table.Edit;
+table.Post;
+table.Refresh;
+table.First;
+end;
+
 // this function checks whether a given string has atleast one special character
-function Utils.containsSpecialChar(str: string): boolean;
+function Utils.ContainsSpecialChar(str: string): boolean;
 var
   I: integer;
 begin
@@ -117,7 +127,7 @@ begin
 
 end;
 
-procedure Utils.goToRecordAfter(table: TADOTable; field: string; val: Variant;
+procedure Utils.GoToRecordAfter(table: TADOTable; field: string; val: Variant;
   iOccurences: integer);
 var
   I: integer;
@@ -157,7 +167,7 @@ begin
   end;
 end;
 
-function Utils.goToRecord(table: TADOTable; pk: string; val: Variant): integer;
+function Utils.GoToRecord(table: TADOTable; pk: string; val: Variant): integer;
 begin
   // Sets pointer to record with specified primary key value
   with DataModule1 do
@@ -179,7 +189,7 @@ begin
   end;
 end;
 
-function Utils.containsDigit(str: string): boolean;
+function Utils.ContainsDigit(str: string): boolean;
 var
   I: integer;
 begin

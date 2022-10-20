@@ -2,7 +2,7 @@ object frmMatch: TfrmMatch
   Left = 0
   Top = 0
   Caption = 'Edit Match'
-  ClientHeight = 273
+  ClientHeight = 293
   ClientWidth = 351
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -118,5 +118,14 @@ object frmMatch: TfrmMatch
     MinValue = 0
     TabOrder = 6
     Value = 0
+  end
+  object btnFinalise: TButton
+    Left = 136
+    Top = 260
+    Width = 81
+    Height = 25
+    Caption = 'Finalise'
+    TabOrder = 7
+    OnClick = btnFinaliseClick
   end
 end

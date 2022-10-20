@@ -159,14 +159,14 @@ begin
     showMessage('Your password cannot be over 15 characters.');
     Exit;
   end
-  else if not util.containsSpecialChar(sPassword) then
+  else if not util.ContainsSpecialChar(sPassword) then
   begin
     // check whether password has at least one special character
     showMessage('Your password must contain atleast one special character.');
     Exit;
 
   end
-  else if not util.containsDigit(sPassword) then
+  else if not util.ContainsDigit(sPassword) then
   begin
     showMessage('Your password must contain atleast one digit');
     Exit;

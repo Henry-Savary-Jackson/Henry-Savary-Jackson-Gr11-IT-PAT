@@ -23,18 +23,22 @@ type
     sedTeamOneScore: TSpinEdit;
     sedTeamTwoScore: TSpinEdit;
     lblScoreTwo: TLabel;
+    btnFinalise: TButton;
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure btnBackClick(Sender: TObject);
     procedure FormShow(Sender: TObject);
     procedure btnSaveClick(Sender: TObject);
+    procedure btnFinaliseClick(Sender: TObject);
+    procedure saveMatch();
+    procedure saveAllocs();
   private
     { Private declarations }
   public
     { Public declarations }
     matchID, sUsername, sID: string;
     arrAllocID: TArray<string>;
-    iUser, iRound: integer;
-    editable: boolean;
+    iUser, iTournRound, iMatchRound: integer;
+    bBeforeEditable, bFinished: boolean;
     dDate: tDate;
     bBegin: boolean
 
@@ -54,7 +58,7 @@ uses
 
 procedure TfrmMatch.btnBackClick(Sender: TObject);
 begin
-  frmTournament.iRound := iRound;
+  frmTournament.iRound := iTournRound;
   frmTournament.sUsername := sUsername;
   frmTournament.bBegin := bBegin;
   frmTournament.iUser := iUser;
@@ -64,125 +68,25 @@ begin
   frmTournament.Show;
 end;
 
-procedure TfrmMatch.btnSaveClick(Sender: TObject);
-var
-  sLocation: string;
-  iScoreOne, iScoreTwo, iSupervisorIndex: integer;
-  bDraw: boolean;
+procedure TfrmMatch.btnFinaliseClick(Sender: TObject);
 begin
   // Update record in Database
-  with DataModule1 do
-  begin
-    // Input
-    iScoreOne := sedTeamOneScore.Value;
-    iScoreTwo := sedTeamTwoScore.Value;
+  saveAllocs;
+  saveMatch;
+  showMessage('Match finalised!');
+  // Naviguate back to main screen
+  btnBack.Click;
 
-    iSupervisorIndex := cmbSupervisor.ItemIndex;
+end;
 
-    sLocation := edtLocation.Text;
+procedure TfrmMatch.btnSaveClick(Sender: TObject);
+begin
+  // Update record in Database
+  saveMatch;
+  showMessage('Changes saved!');
+  // naviguate back to tournament screen
+  btnBack.Click;
 
-    // Input validation
-    if length(sLocation) = 0 then
-    begin
-      showMessage('Please enter a location.');
-      Exit;
-    end;
-
-    if (iSupervisorIndex = -1) and (iUser = 0) then
-    begin
-      showMessage('Please select a supervisor.');
-      Exit;
-    end;
-
-    util.goToRecord(MatchTB, 'MatchID', matchID);
-    MatchTB.Edit;
-
-    bDraw := (iScoreOne = iScoreTwo) and (dDate = MatchTB['MatchDate']);
-
-    if bDraw then
-    begin
-      dtpDate.Date := dtpDate.Date + 4;
-    end;
-
-    // Edit MatchTB
-
-    if iUser = 0 then
-      MatchTB['SupervisorID'] := arrSupervisorID[iSupervisorIndex];
-
-    MatchTB['Location'] := sLocation;
-
-    MatchTB['MatchDate'] := dtpDate.Date;
-
-    // Update DB
-    MatchTB.Edit;
-    MatchTB.Post;
-    MatchTB.Refresh;
-    MatchTB.First;
-
-    if not bDraw then
-    begin
-
-      // Edit MatchAllocTB
-
-      util.goToRecord(MatchAllocTB, 'AllocID', arrAllocID[0]);
-      MatchAllocTB.Edit;
-      MatchAllocTB['Score'] := iScoreOne;
-      util.goToRecord(MatchAllocTB, 'AllocID', arrAllocID[1]);
-      MatchAllocTB.Edit;
-      MatchAllocTB['Score'] := iScoreTwo;
-      util.goToRecord(MatchAllocTB, 'AllocID', arrAllocID[0]);
-
-      if iScoreOne > iScoreTwo then
-      begin
-        MatchAllocTB.Edit;
-        MatchAllocTB['Won'] := true;
-        // next
-        util.goToRecord(MatchAllocTB, 'AllocID', arrAllocID[1]);
-        MatchAllocTB.Edit;
-        MatchAllocTB['Won'] := false;
-
-        util.goToRecord(TeamTB, 'TeamName', sTeamOne);
-        TeamTB.Edit;
-        TeamTB['NumWon'] := TeamTB['NumWon'] + 1;
-        util.goToRecord(TeamTB, 'TeamName', sTeamTwo);
-        TeamTB.Edit;
-        TeamTB['NumLost'] := TeamTB['NumLost'] + 1;
-      end
-      else if iScoreOne < iScoreTwo then
-      begin
-        util.goToRecord(MatchAllocTB, 'AllocID', arrAllocID[1]);
-        MatchAllocTB.Edit;
-        MatchAllocTB['Won'] := true;
-        util.goToRecord(MatchAllocTB, 'AllocID', arrAllocID[0]);
-        MatchAllocTB.Edit;
-        MatchAllocTB['Won'] := false;
-
-        util.goToRecord(TeamTB, 'TeamName', sTeamTwo);
-        TeamTB.Edit;
-        TeamTB['NumWon'] := TeamTB['NumWon'] + 1;
-        util.goToRecord(TeamTB, 'TeamName', sTeamOne);
-        TeamTB.Edit;
-        TeamTB['NumLost'] := TeamTB['NumLost'] + 1;
-      end;
-
-      // Update DB
-      MatchAllocTB.Edit;
-      MatchAllocTB.Post;
-      MatchAllocTB.Refresh;
-      MatchAllocTB.First;
-
-      showMessage('Changes saved!');
-    end // if bDraw
-    else
-    begin
-      showMessage
-        ('A draw has occurred. A rematch is scheduled before the round ends');
-    end;
-
-    // naviguate back to tournament screen
-    btnBack.Click;
-
-  end;
 end;
 
 procedure TfrmMatch.FormClose(Sender: TObject; var Action: TCloseAction);
@@ -194,7 +98,7 @@ procedure TfrmMatch.FormShow(Sender: TObject);
 var
   I: integer;
   sSupervisorID: string;
-
+  bOnDay: boolean;
 begin
 
   with DataModule1 do
@@ -204,23 +108,26 @@ begin
     SupervisorTB.Open;
     TeamTB.Open;
 
-    util.goToRecord(MatchAllocTB, 'AllocID', arrAllocID[0]);
+    util.GoToRecord(MatchAllocTB, 'AllocID', arrAllocID[0]);
     sTeamOne := MatchAllocTB['TeamName'];
     sedTeamOneScore.Value := MatchAllocTB['Score'];
 
-    util.goToRecord(MatchAllocTB, 'AllocID', arrAllocID[1]);
+    util.GoToRecord(MatchAllocTB, 'AllocID', arrAllocID[1]);
 
     sTeamTwo := MatchAllocTB['TeamName'];
     sedTeamTwoScore.Value := MatchAllocTB['Score'];
     lblTeams.Caption := sTeamOne + ' vs ' + sTeamTwo;
 
-    util.goToRecord(MatchTB, 'MatchID', matchID);
+    util.GoToRecord(MatchTB, 'MatchID', matchID);
 
     edtLocation.Text := MatchTB['Location'];
     dtpDate.Date := MatchTB['MatchDate'];
 
+    iMatchRound := MatchTB['Round'];
+
     // only allows the match to be editable on the day of the match
-    editable := dDate <= MatchTB['MatchDate'];
+    bBeforeEditable := dDate <= MatchTB['MatchDate'];
+    bFinished := MatchTB['Finished'];
 
     // retrieves the match's supervisor's ID.
     // If this ID is the same as the user's ID,then they can edit the match.
@@ -230,25 +137,29 @@ begin
 
       sSupervisorID := MatchTB['SupervisorID'];
       if iUser = 1 then
-        editable := sSupervisorID = sID;
+        bBeforeEditable := sSupervisorID = sID;
 
     end
     else
     begin
       sSupervisorID := '000';
-      editable := (iUser = 0);
+      bBeforeEditable := (iUser = 0);
     end;
+    bOnDay := (sID = sSupervisorID) and (dDate = MatchTB['MatchDate']);
 
     // Disables/Enables the components based on whether the match is
     // editable by the current user.
-    dtpDate.Enabled := editable;
-    edtLocation.Enabled := editable;
-    sedTeamOneScore.Enabled := (sID = sSupervisorID) and
-      (dDate = MatchTB['MatchDate']);
-    sedTeamTwoScore.Enabled := (sID = sSupervisorID) and
-      (dDate = MatchTB['MatchDate']);
-    cmbSupervisor.Enabled := editable;
-    btnSave.Enabled := editable;
+    dtpDate.Enabled := bBeforeEditable and (not bFinished);
+    edtLocation.Enabled := bBeforeEditable and (not bFinished);
+
+    sedTeamOneScore.Enabled := bOnDay and (not bFinished);
+
+    sedTeamTwoScore.Enabled := bOnDay and (not bFinished);
+
+    cmbSupervisor.Enabled := bBeforeEditable and (not bFinished);
+
+    btnSave.Enabled := bBeforeEditable and (not bFinished);
+    btnFinalise.Enabled := bOnDay and (not bFinished);
 
     // user permissions on different components
     case iUser of
@@ -307,6 +218,158 @@ begin
     end; // while  not eof
 
   end; // open datamodule
+
+end;
+
+procedure TfrmMatch.saveAllocs;
+var
+  iScoreOne, iScoreTwo: integer;
+  bDraw: boolean;
+begin
+  //
+  with DataModule1 do
+  begin
+
+    iScoreOne := sedTeamOneScore.Value;
+    iScoreTwo := sedTeamTwoScore.Value;
+
+    bDraw := (iScoreOne = iScoreTwo);
+
+    if bDraw then
+    begin
+      MatchTB.Filter := 'Round = ' + intToStr(iMatchRound);
+      MatchTB.Filtered := true;
+      MatchTB.Sort := 'Round DESC';
+      MatchTB.First;
+      dtpDate.Date := MatchTB['MatchDate'] + 4;
+      MatchTB.Sort := '';
+      MatchTB.Filtered := false;
+    end;
+
+    // Edit MatchAllocTB
+
+    util.GoToRecord(MatchAllocTB, 'AllocID', arrAllocID[0]);
+    MatchAllocTB.Edit;
+    if not bDraw then
+    begin
+      MatchAllocTB['Score'] := iScoreOne;
+    end
+    else
+    begin
+      MatchAllocTB['Score'] := 0;
+    end;
+
+    util.GoToRecord(MatchAllocTB, 'AllocID', arrAllocID[1]);
+    MatchAllocTB.Edit;
+    if not bDraw then
+    begin
+      MatchAllocTB['Score'] := iScoreTwo;
+    end
+    else
+    begin
+      MatchAllocTB['Score'] := 0;
+    end;
+    util.GoToRecord(MatchAllocTB, 'AllocID', arrAllocID[0]);
+
+    if not bDraw then
+    begin
+
+      if iScoreOne > iScoreTwo then
+      begin
+        MatchAllocTB.Edit;
+        MatchAllocTB['Won'] := true;
+        // next
+        util.GoToRecord(MatchAllocTB, 'AllocID', arrAllocID[1]);
+        MatchAllocTB.Edit;
+        MatchAllocTB['Won'] := false;
+
+        util.GoToRecord(TeamTB, 'TeamName', sTeamOne);
+        TeamTB.Edit;
+        TeamTB['NumWon'] := TeamTB['NumWon'] + 1;
+        util.GoToRecord(TeamTB, 'TeamName', sTeamTwo);
+        TeamTB.Edit;
+        TeamTB['NumLost'] := TeamTB['NumLost'] + 1;
+      end
+      else if iScoreOne < iScoreTwo then
+      begin
+        util.GoToRecord(MatchAllocTB, 'AllocID', arrAllocID[1]);
+        MatchAllocTB.Edit;
+        MatchAllocTB['Won'] := true;
+        util.GoToRecord(MatchAllocTB, 'AllocID', arrAllocID[0]);
+        MatchAllocTB.Edit;
+        MatchAllocTB['Won'] := false;
+
+        util.GoToRecord(TeamTB, 'TeamName', sTeamTwo);
+        TeamTB.Edit;
+        TeamTB['NumWon'] := TeamTB['NumWon'] + 1;
+        util.GoToRecord(TeamTB, 'TeamName', sTeamOne);
+        TeamTB.Edit;
+        TeamTB['NumLost'] := TeamTB['NumLost'] + 1;
+      end;
+
+      bFinished := true;
+    end // if bDraw
+    else
+    begin
+
+      showMessage
+        ('A draw has occurred. A rematch is scheduled before the round ends');
+    end;
+
+    // Update DB
+    util.UpdateTB(MatchAllocTB);
+
+    util.UpdateTB(MatchTB);
+
+  end;
+end;
+
+procedure TfrmMatch.saveMatch;
+var
+  sLocation: string;
+  iSupervisorIndex: integer;
+begin
+  //
+
+  with DataModule1 do
+  begin
+    iSupervisorIndex := cmbSupervisor.ItemIndex;
+
+    sLocation := edtLocation.Text;
+
+    // Input validation
+    if length(sLocation) = 0 then
+    begin
+      showMessage('Please enter a location.');
+      Exit;
+    end;
+
+    if (iSupervisorIndex = -1) and (iUser = 0) then
+    begin
+      showMessage('Please select a supervisor.');
+      Exit;
+    end;
+
+    util.GoToRecord(MatchTB, 'MatchID', matchID);
+    MatchTB.Edit;
+
+    if iUser = 0 then
+      MatchTB['SupervisorID'] := arrSupervisorID[iSupervisorIndex];
+
+    MatchTB.Edit;
+    MatchTB['Location'] := sLocation;
+    MatchTB.Edit;
+    MatchTB['MatchDate'] := dtpDate.Date;
+    MatchTB.Edit;
+    MatchTB['Finished'] := bFinished;
+
+    // Update DB
+    MatchTB.Edit;
+    MatchTB.Post;
+    MatchTB.Refresh;
+    MatchTB.First;
+
+  end;
 
 end;
 
