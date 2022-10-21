@@ -106,36 +106,55 @@ begin
     // update list box
     UpdateListBox();
     redTeams.Lines.Clear;
-    redTeams.Lines.Add('Winners'' bracket:');
     // populate wb and lb
-    TeamTB.Filter := 'NumLost = 0';
+    TeamTB.Filter := 'NumLost < 2';
     TeamTB.Filtered := true;
-    TeamTB.First;
-    I := 0;
-    while not TeamTB.Eof do
+
+    if TeamTB.RecordCount > 2 then
     begin
-      I := I + 1;
-      setLength(arrWB, I);
-      arrWB[I - 1] := TeamTB['TeamName'];
-      redTeams.Lines.Add(TeamTB['TeamName']);
-      TeamTB.Next;
-    end;
-    TeamTB.Filter := 'NumLost = 1';
-    TeamTB.First;
-    I := 0;
-    redTeams.Lines.Add(#13 + 'Losers'' bracket:');
-    while not TeamTB.Eof do
+      redTeams.Lines.Add('Winners'' bracket:');
+
+      TeamTB.Filter := 'NumLost = 0';
+      TeamTB.Filtered := true;
+
+      TeamTB.First;
+      I := 0;
+      while not TeamTB.Eof do
+      begin
+        I := I + 1;
+        setLength(arrWB, I);
+        arrWB[I - 1] := TeamTB['TeamName'];
+        redTeams.Lines.Add(TeamTB['TeamName']);
+        TeamTB.Next;
+      end;
+      TeamTB.Filter := 'NumLost = 1';
+      TeamTB.First;
+      I := 0;
+      redTeams.Lines.Add(#13 + 'Losers'' bracket:');
+      while not TeamTB.Eof do
+      begin
+        I := I + 1;
+        setLength(arrLB, I);
+        arrLB[I - 1] := TeamTB['TeamName'];
+        redTeams.Lines.Add(TeamTB['TeamName']);
+        TeamTB.Next;
+      end;
+      TeamTB.Filtered := false;
+
+    end else
     begin
-      I := I + 1;
-      setLength(arrLB, I);
-      arrLB[I - 1] := TeamTB['TeamName'];
-      redTeams.Lines.Add(TeamTB['TeamName']);
-      TeamTB.Next;
+      redTeams.Lines.Add('Final teams: ');
+      TeamTB.First;
+      while not TeamTB.Eof do
+      begin
+        redTeams.Lines.Add(TeamTB['TeamName']);
+        TeamTB.Next;
+      end;
+      TeamTB.Filtered := false;
     end;
-    TeamTB.Filtered := false;
 
     // Only allows the next round to be started if all matches are over
-    MatchTB.Filter := 'Finished = False';
+    MatchTB.Filter := 'Round = ' + intToStr(iRound) + ' AND Finished = False';
     MatchTB.Filtered := true;
     btnNextRnd.Enabled := (iUser = 0) and bBegin and (MatchTB.RecordCount = 0);
     btnBeginTournament.Enabled := not bBegin;
@@ -280,11 +299,8 @@ begin
 end;
 
 procedure TfrmTournament.chbLoserBracketClick(Sender: TObject);
-var
-  bLB: boolean;
 begin
 
-  bLB := chbLoserBracket.Checked;
   UpdateListBox();
 end;
 
@@ -293,7 +309,7 @@ var
   arrTeams, arrByes: TArray<string>;
   arrMatchTeams: array [0 .. 1] of string;
   sMatchID: string;
-  I, iIndex, J, iByes, iTeams: integer;
+  I, iIndex, J, iByes: integer;
 begin
   with DataModule1 do
   begin
@@ -308,6 +324,7 @@ begin
 
     if length(arrTeams) = 1 then
     begin
+      showMessage('Only one player in bracket');
       Exit;
     end;
 
@@ -321,12 +338,13 @@ begin
       // get Byes from previous round nad remove them from arrTeams
       I := 0;
 
-      showMessage('Num byes: ' + intToStr(length(arrByes)));
-      showMessage(intToStr(MatchAllocTB.RecordCount));
+      showMessage('Num byes for next round: ' + intToStr(length(arrByes)));
+      showMessage('Num byes from prev round: ' +
+        intToStr(MatchAllocTB.RecordCount));
 
       while not MatchAllocTB.Eof do
       begin
-        // showMessage('Byes');
+        showMessage('loop through Byes');
         util.GoToRecord(MatchTB, 'MatchID', MatchAllocTB['MatchID']);
         //
         if MatchTB['LosersBracket'] = LB then
@@ -344,18 +362,20 @@ begin
       MatchAllocTB.Filtered := false;
       MatchAllocTB.First;
 
-      showMessage('Num byes: ' + intToStr(length(arrByes)));
+      showMessage('Num byes from previous round: ' + intToStr(length(arrByes)));
       // make sure each bye from the previous round gets a match
       for I := 0 to length(arrByes) - 1 do
       begin
-        showMessage('arrbyes: ' + arrByes[I]);
+        showMessage('bye: ' + arrByes[I]);
         arrMatchTeams[0] := arrByes[I];
         iIndex := random(length(arrTeams));
-        showMessage('arrteams: ' + arrTeams[iIndex]);
+        showMessage('not bye: ' + arrTeams[iIndex]);
         arrMatchTeams[1] := arrTeams[iIndex];
         Delete(arrTeams, iIndex, 1);
         dDate := dDate + 4;
+
         sMatchID := MakeMatch(arrMatchTeams[0], arrMatchTeams[1], dDate, LB);
+        // only show byes in table
         MatchAllocTB.Filter := 'MatchID = ' + QuotedStr('000');
         MatchAllocTB.Filtered := true;
         // go to the bye's allocation record, and give it its new match foreign key
@@ -364,6 +384,7 @@ begin
         MatchAllocTB['MatchID'] := sMatchID;
         MatchAllocTB.Filtered := false;
         // showMessage('Woop2');
+        // make allocation between two teams
         MakeAlloc(arrMatchTeams[1], sMatchID);
         // showMessage('Woop3');
 
@@ -453,13 +474,11 @@ begin
 
     remainingTeams := TeamTB.RecordCount;
 
-    TeamTB.Filtered := false;
-
     if remainingTeams > 2 then
     begin
       // most of tournament
       iRound := iRound + 1;
-
+      TeamTB.Filtered := false;
       MakeFixtures(arrWB, false);
       MakeFixtures(arrLB, true);
       showMessage('Fixtures made!');
@@ -467,14 +486,18 @@ begin
     else if remainingTeams = 2 then
     begin
       // final match
+      showMessage('Final Round');
       TeamTB.First;
       setLength(arrFinalTeams, 2);
+      showMessage(TeamTB['TeamName']);
       arrFinalTeams[0] := TeamTB['TeamName'];
       TeamTB.Next;
+      showMessage(TeamTB['TeamName']);
       arrFinalTeams[1] := TeamTB['TeamName'];
 
       iRound := iRound + 1;
 
+      TeamTB.Filtered := false;
       MakeFixtures(arrFinalTeams, false);
       showMessage('Fixtures made!');
 
@@ -482,13 +505,14 @@ begin
     else
     begin
       // end of tournament
+      TeamTB.Filtered := false;
       TeamTB.Sort := 'TournamentPosition DESC';
       TeamTB.First;
       for I := 0 to 2 do
       begin
-        arrPodium[I] := TeamTB['TeamName'];
+        arrPodium[2-I] := TeamTB['TeamName'];
+        TeamTB.Next;
       end;
-
 
       redTeams.Lines.Clear;
       redTeams.Lines.Add('1st Place: ' + arrPodium[0]);
@@ -497,8 +521,10 @@ begin
 
       showMessage('Tournament is over!');
 
-      //TODO make program and button understand tournament over
+      // TODO make program and button understand tournament over
     end;
+
+    TeamTB.Filtered := false;
 
     ComboBoxUpdate();
     SaveTournament();

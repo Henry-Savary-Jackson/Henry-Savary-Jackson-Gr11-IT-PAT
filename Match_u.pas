@@ -383,12 +383,12 @@ begin
     MatchAllocTB['Won'] := false;
 
     //Change Numwon
-    util.GoToRecord(TeamTB, 'TeamName', sWinnerAllocID);
+    util.GoToRecord(TeamTB, 'TeamName', sWinnerTeam);
     TeamTB.Edit;
     TeamTB['NumWon'] := TeamTB['NumWon'] + 1;
     
     //Change NumLost
-    util.GoToRecord(TeamTB, 'TeamName', sLoserAllocID);
+    util.GoToRecord(TeamTB, 'TeamName', sLoserTeam);
     TeamTB.Edit;
     TeamTB['NumLost'] := TeamTB['NumLost'] + 1;
 

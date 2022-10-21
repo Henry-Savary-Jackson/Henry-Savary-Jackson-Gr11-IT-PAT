@@ -85,6 +85,7 @@ begin
   frmTournament.sID := sID;
   frmTournament.iRound := iRound;
   frmTournament.bBegin := bBegin;
+  frmTournament.sUsername := sUsername;
   frmTournament.Show;
   frmTournament.dDate := dDate;
   frmMain.Hide;

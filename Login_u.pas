@@ -155,7 +155,7 @@ begin
     if iUser = 1 then
     begin
       MatchTB.Filter := 'MatchDate = ' + DateToStr(dDate) +
-        ' AND  SupervisorID = ' + QuotedStr(sID) + '';
+        ' AND  SupervisorID = ' + QuotedStr(sID) + ' AND Finished = False';
       MatchTB.Filtered := true;
       if not(MatchTB.RecordCount = 0) then
       begin
@@ -198,7 +198,9 @@ begin
 
       end
       else
+      begin
         Result := false;
+      end;
       MatchTB.Filtered := false;
     end
     else
