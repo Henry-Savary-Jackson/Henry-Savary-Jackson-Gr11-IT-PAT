@@ -31,7 +31,7 @@ type
     { Private declarations }
   public
     { Public declarations }
-    bBegin: boolean;
+    bBegin, bTournEnd: boolean;
     sID, sUsername: string;
     iRound, iUser: integer;
   end;
@@ -43,6 +43,7 @@ var
 
 const
   fileNameSup = 'Supervisors.txt';
+  fileNameTourn = 'Tournament.txt';
 
 implementation
 
@@ -54,6 +55,7 @@ uses
 
 procedure TfrmSignUp.btnSignInClick(Sender: TObject);
 begin
+  // naviguate back to login
   frmSignUp.Hide;
   frmLogin.Show;
 end;
@@ -65,8 +67,11 @@ var
   dDate: tDate;
 begin
   // Input
+
+  // obtain user type
   iUser := cmbUser.ItemIndex;
 
+  // obtain username
   sUsername := edtUsername.Text;
 
   // validate username length
@@ -106,13 +111,14 @@ begin
 
     if not bRegistered then
     begin
+      // if couldn't find in text file, show error message
       showMessage('You are not registered as a supervisor.');
       Exit;
-    end;
+    end; // if
 
-  end;
+  end; // else
+
   // validate against already existing username
-
   case iUser of
     0:
       if util.isInTable(DataModule1.OrganiserTB, 'OrganiserName', sUsername)
@@ -131,6 +137,7 @@ begin
 
   else
     begin
+      // validate against not choosing your role as organiser or supervisor
       showMessage('Please select your role.');
       Exit;
     end;
@@ -140,15 +147,15 @@ begin
 
   end;
 
+  // obtain password from edit box
   sPassword := edtPassword.Text;
 
-  // validate password
+  // validate password length of 8-15
   if sPassword = '' then
   begin
     showMessage('Please enter a password.');
     Exit;
   end
-  // Ensure that password is the correct length
   else if Length(sPassword) < 8 then
   begin
     showMessage('Your password must be at least 8 characters long.');
@@ -168,6 +175,7 @@ begin
   end
   else if not util.ContainsDigit(sPassword) then
   begin
+    // check whether password has atleast one digit
     showMessage('Your password must contain atleast one digit');
     Exit;
   end;
@@ -182,12 +190,9 @@ begin
 
           // generate unique ID
 
-          sID := UpCase(sUsername[1]) + intToStr(random(10));
-          // Ensure generated ID is not already in table
-          while util.isInTable(OrganiserTB, 'OrganiserID', sID) do
-          begin
+          repeat
             sID := UpCase(sUsername[1]) + intToStr(random(10));
-          end;
+          until not util.isInTable(OrganiserTB, 'OrganiserID', sID);
 
           // insert record
           // set ADOTable to insert
@@ -199,8 +204,8 @@ begin
           OrganiserTB['OrganiserName'] := sUsername;
           OrganiserTB['Password'] := sPassword;
 
-          OrganiserTB.Post;
-          OrganiserTB.Refresh;
+          //uupdate DB
+          util.UpdateTB(OrganiserTB);
 
         end;
       1:
@@ -208,15 +213,11 @@ begin
 
           // generate unique ID
 
-          sID := UpCase(sUsername[1]) + intToStr(random(10)) +
-            intToStr(random(10));
-
-          // Ensure generated ID is not already in table
-          while util.isInTable(SupervisorTB, 'SupervisorID', sID) do
-          begin
+          repeat
             sID := UpCase(sUsername[1]) + intToStr(random(10)) +
               intToStr(random(10));
-          end;
+
+          until not util.isInTable(SupervisorTB, 'SupervisorID', sID);
 
           // set ADOTable to insert
           SupervisorTB.Last;
@@ -237,22 +238,25 @@ begin
           end;
           SupervisorTB['OrganiserID'] := arrOrganiserID[cmbOrganiser.ItemIndex];
 
-          SupervisorTB.Post;
-          SupervisorTB.Refresh;
+          //update DB
+          util.UpdateTB(SupervisorTB);
         end;
 
     end;
 
   end;
 
+  //obtain current date
   dDate := StrToDate(InputBox('Date:', 'Enter Date:', ''));
 
-  // send data to main screen
+  // pass along data to main screen
   frmMain.iUser := iUser;
   frmMain.sUsername := sUsername;
   frmMain.sID := sID;
   frmMain.dDate := dDate;
   frmMain.bBegin := bBegin;
+  frmMain.bTournEnd := bTournEnd;
+  frmMain.iRound := iRound;
 
   // open main screen
   frmSignUp.Hide;
@@ -320,10 +324,10 @@ begin
 
   iRound := 1;
   bBegin := false;
-  if not FileExists(fileNameSup) then
+  if not FileExists(fileNameTourn) then
   begin
 
-    AssignFile(fTournament, fileNameSup);
+    AssignFile(fTournament, fileNameTourn);
     ReWrite(fTournament);
     Writeln(fTournament, 'Begun: F');
     Writeln(fTournament, 'CurrentRound: 1');
@@ -331,7 +335,7 @@ begin
   end
   else
   begin
-    AssignFile(fTournament, fileNameSup);
+    AssignFile(fTournament, fileNameTourn);
 
     Reset(fTournament);
     Readln(fTournament, sLine);

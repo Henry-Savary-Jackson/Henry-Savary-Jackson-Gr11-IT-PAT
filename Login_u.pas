@@ -34,10 +34,15 @@ type
 
 var
   frmLogin: TfrmLogin;
+  //Textfile containing relevant information on tournament
+
   fTournament: TextFile;
-  arrOrganiserID: array of string;
   iRound: integer;
+  //iRound: current round of tournament
   bBegin: boolean;
+  //bBegin : whether the tournament has begun
+  bTournEnd : boolean;
+  //bTournend : whether tournament has ended
 
 const
   fileNameTourn = 'Tournament.txt';
@@ -59,8 +64,8 @@ var
 begin
   with DataModule1 do
   begin
-    // iUser := cmbUser.ItemIndex;
 
+    //obtain username
     sUsername := edtUsername.Text;
 
     // validate Username
@@ -72,6 +77,7 @@ begin
     end
     else
     begin
+      //determine what type of user they are
       if util.isInTable(OrganiserTB, 'OrganiserName', sUsername) then
       begin
         iUser := 0;
@@ -82,14 +88,17 @@ begin
       end
       else
       begin
+        //username must exist
         showMessage('User doesn''t exist');
         Exit;
       end;
 
     end;
 
+    //obtain password
     sPassword := edtPassword.Text;
 
+    //check if passwpord is correct
     case iUser of
       0:
         begin
@@ -110,7 +119,7 @@ begin
 
     end;
 
-    // send data over to main screen
+    // obtain User ID
     case iUser of
       0:
         sID := OrganiserTB['OrganiserID'];
@@ -118,6 +127,7 @@ begin
         sID := SupervisorTB['SupervisorID'];
     end;
 
+    //obtain current date
     dDate := StrToDate(InputBox('Date:', 'Enter Date:', ''));
 
     if NotifySupervisor(dDate, sUsername, sID, iUser) then
@@ -128,14 +138,16 @@ begin
     end
     else
     begin
-      // Naviguate to main screen
+      //pass program data
       frmMain.iUser := iUser;
       frmMain.iRound := iRound;
       frmMain.sID := sID;
       frmMain.bBegin := bBegin;
       frmMain.sUsername := sUsername;
       frmMain.dDate := dDate;
+      frmMain.bTournEnd := bTournEnd;
 
+      // Naviguate to main screen
       frmLogin.Hide;
       frmMain.Show;
     end;
@@ -144,6 +156,8 @@ begin
 
 end;
 
+//this function checks whether the user, if they are a supervisor
+// has a match to umpire on the current date
 function TfrmLogin.NotifySupervisor(dDate: TDate; sUsername, sID: string;
   iUser: integer): boolean;
 var
@@ -152,11 +166,14 @@ var
 begin
   with DataModule1 do
   begin
-    if iUser = 1 then
+    if iUser = 1 then  //user must be supervisor
     begin
+
+      //Match Must be today, supervisor by the supervisor, and not already finished
       MatchTB.Filter := 'MatchDate = ' + DateToStr(dDate) +
         ' AND  SupervisorID = ' + QuotedStr(sID) + ' AND Finished = False';
       MatchTB.Filtered := true;
+
       if not(MatchTB.RecordCount = 0) then
       begin
         MatchTB.First;
@@ -164,23 +181,31 @@ begin
         MatchTB.Filtered := false;
         MatchTB.First;
 
+        //go to relevant match's record
         MatchAllocTB.Filter := 'MatchID = ' + QuotedStr(sMatchID);
         MatchAllocTB.Filtered := true;
         MatchAllocTB.First;
         setLength(arrAllocID,2);
 
+        //Obtain the teams that are playing this match
         arrAllocID[0] := MatchAllocTB['AllocID'];
         sTeamOne := MatchAllocTB['TeamName'];
         MatchAllocTB.Next;
+
         arrAllocID[1] := MatchAllocTB['AllocID'];
         sTeamTwo := MatchAllocTB['TeamName'];
+
+
         MatchAllocTB.Filtered := false;
         MatchAllocTB.First;
 
+        //Show Dialog to ask user whether they want to be taken directly to the match
+        //to enter results
         if MessageDlg('You have to umpire the match ' + sTeamOne + ' vs ' +
           sTeamTwo + ' today. Do you want to enter results now?',
           mtConfirmation, [mbYes, mbNo], 0, mbYes) = mrYes then
         begin
+          //pass program data
           frmMatch.matchID := sMatchID;
           frmMatch.iUser := iUser;
           frmMatch.sID := sID;
@@ -189,6 +214,7 @@ begin
           frmMatch.sUsername := sUsername;
           frmMatch.iTournRound := iRound;
           frmMatch.dDate := dDate;
+          frmMatch.bTournEnd := bTournEnd;
 
           Result := true;
 
@@ -196,24 +222,26 @@ begin
         else
           Result := false;
 
-      end
+      end //if user has a match to umpire
       else
       begin
         Result := false;
-      end;
+      end; //else
       MatchTB.Filtered := false;
-    end
+
+    end  //if User =1
     else
     begin
       Result := false;
-    end;
+    end; //else
 
-  end;
+  end;  //with Datamodule1
 end;
 
 procedure TfrmLogin.btnSignUpClick(Sender: TObject);
 
 begin
+  //Naviguate to sign up screen
   frmLogin.Hide;
   frmSignUp.bBegin := bBegin;
   frmSignUp.Show;
@@ -242,35 +270,55 @@ begin
 
   end;
 
+  //set default values for tournament variables
   iRound := 1;
   bBegin := false;
+  bTournEnd := false;
+
   if not FileExists(fileNameTourn) then
   begin
-
+    //if the tournament info file does not exist, create a default one
     AssignFile(fTournament, fileNameTourn);
     ReWrite(fTournament);
     Writeln(fTournament, 'Begun: F');
     Writeln(fTournament, 'CurrentRound: 1');
+    Writeln(fTournament, 'End: F');
     CloseFile(fTournament);
   end
   else
   begin
+    //otherwise read from file
     AssignFile(fTournament, fileNameTourn);
 
     Reset(fTournament);
     Readln(fTournament, sLine);
 
+    //read whether the tournament has begun or not
     Delete(sLine, 1, pos(' ', sLine));
     case sLine[1] of
       'T':
         bBegin := true;
       'F':
         bBegin := false;
-    end;
+    end; //switch case
 
+    //read the current round of the tournament
     Readln(fTournament, sLine);
     Delete(sLine, 1, pos(' ', sLine));
     iRound := strToInt(sLine);
+
+    //read whether the tournament has ended or not
+    Readln(fTournament,sLIne);
+    Delete(sLine, 1, pos(' ', sLine));
+    case sLine[1] of
+      'T':
+        bTournEnd := true;
+      'F':
+        bTournEnd := false;
+    end; //switch case
+
+    //don't allow users to sign up if tournament has ended
+    btnSignUp.Enabled := not bTournEnd;
 
     CloseFile(fTournament);
 

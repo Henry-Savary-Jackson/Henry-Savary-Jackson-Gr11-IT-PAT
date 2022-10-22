@@ -1,0 +1,357 @@
+unit SignUp_u;
+
+interface
+
+uses
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants,
+  System.Classes, Vcl.Graphics,
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, Vcl.ExtCtrls, Utils_u,
+  DMUnit_u;
+
+type
+  TfrmSignUp = class(TForm)
+    lblUsername: TLabel;
+    lblPassword: TLabel;
+    Image1: TImage;
+    lblAppTitle: TLabel;
+    lblOrganiser: TLabel;
+    edtUsername: TEdit;
+    edtPassword: TEdit;
+    cmbUser: TComboBox;
+    btnSignUp: TButton;
+    cmbOrganiser: TComboBox;
+    lblSignIn: TLabel;
+    btnSignIn: TButton;
+    procedure btnSignUpClick(Sender: TObject);
+    procedure FormShow(Sender: TObject);
+    procedure btnSignInClick(Sender: TObject);
+    procedure cmbUserChange(Sender: TObject);
+    procedure FormClose(Sender: TObject; var Action: TCloseAction);
+  private
+    { Private declarations }
+  public
+    { Public declarations }
+    bBegin, bTournEnd: boolean;
+    sID, sUsername: string;
+    iRound, iUser: integer;
+  end;
+
+var
+  frmSignUp: TfrmSignUp;
+  fSupervisors: TextFile;
+  arrOrganiserID: array of string;
+
+const
+  fileNameSup = 'Supervisors.txt';
+  fileNameTourn = 'Tournament.txt';
+
+implementation
+
+uses
+  Main_u,
+  Login_u;
+
+{$R *.dfm}
+
+procedure TfrmSignUp.btnSignInClick(Sender: TObject);
+begin
+  // naviguate back to login
+  frmSignUp.Hide;
+  frmLogin.Show;
+end;
+
+procedure TfrmSignUp.btnSignUpClick(Sender: TObject);
+var
+  sPassword, sLine: string;
+  bRegistered: boolean;
+  dDate: tDate;
+begin
+  // Input
+
+  // obtain user type
+  iUser := cmbUser.ItemIndex;
+
+  // obtain username
+  sUsername := edtUsername.Text;
+
+  // validate username length
+  if sUsername = '' then
+  begin
+    showMessage('Please enter your username.');
+    Exit;
+  end
+  else if Length(sUsername) > 30 then
+  begin
+    showMessage('Username shouldn''t be longer than 30 characters.')
+  end
+  else if iUser = 1 then
+  begin
+    // verify , given a user is supervisor, that they are in the regitered supervisors
+    // text file.
+    if not FileExists(fileNameSup) then
+    begin
+      showMessage('Error: cannot find list of supervisors.');
+      Exit;
+    end;
+
+    AssignFile(fSupervisors, fileNameSup);
+
+    Reset(fSupervisors);
+    bRegistered := false;
+
+    while not Eof(fSupervisors) do
+    begin
+      Readln(fSupervisors, sLine);
+      if sLine = sUsername then
+      begin
+        bRegistered := true;
+        Break;
+      end;
+    end;
+
+    if not bRegistered then
+    begin
+      // if couldn't find in text file, show error message
+      showMessage('You are not registered as a supervisor.');
+      Exit;
+    end; // if
+
+  end; // else
+
+  // validate against already existing username
+  case iUser of
+    0:
+      if util.isInTable(DataModule1.OrganiserTB, 'OrganiserName', sUsername)
+      then
+      begin
+        showMessage('Username already in use.');
+        Exit;
+      end;
+    1:
+      if util.isInTable(DataModule1.SupervisorTB, 'SupervisorName', sUsername)
+      then
+      begin
+        showMessage('Username already in use.');
+        Exit;
+      end;
+
+  else
+    begin
+      // validate against not choosing your role as organiser or supervisor
+      showMessage('Please select your role.');
+      Exit;
+    end;
+
+    DataModule1.OrganiserTB.First;
+    DataModule1.SupervisorTB.First;
+
+  end;
+
+  // obtain password from edit box
+  sPassword := edtPassword.Text;
+
+  // validate password length of 8-15
+  if sPassword = '' then
+  begin
+    showMessage('Please enter a password.');
+    Exit;
+  end
+  else if Length(sPassword) < 8 then
+  begin
+    showMessage('Your password must be at least 8 characters long.');
+    Exit;
+  end
+  else if Length(sPassword) > 15 then
+  begin
+    showMessage('Your password cannot be over 15 characters.');
+    Exit;
+  end
+  else if not util.ContainsSpecialChar(sPassword) then
+  begin
+    // check whether password has at least one special character
+    showMessage('Your password must contain atleast one special character.');
+    Exit;
+
+  end
+  else if not util.ContainsDigit(sPassword) then
+  begin
+    // check whether password has atleast one digit
+    showMessage('Your password must contain atleast one digit');
+    Exit;
+  end;
+
+  with DataModule1 do
+  begin
+
+    case iUser of
+      0:
+        begin
+          // set ADOTable to insert
+
+          // generate unique ID
+
+          repeat
+            sID := UpCase(sUsername[1]) + intToStr(random(10));
+          until not util.isInTable(OrganiserTB, 'OrganiserID', sID);
+
+          // insert record
+          // set ADOTable to insert
+          OrganiserTB.Last;
+          OrganiserTB.Insert;
+          // insert record
+          OrganiserTB['OrganiserID'] := sID;
+          // add username and password
+          OrganiserTB['OrganiserName'] := sUsername;
+          OrganiserTB['Password'] := sPassword;
+
+          //uupdate DB
+          util.UpdateTB(OrganiserTB);
+
+        end;
+      1:
+        begin
+
+          // generate unique ID
+
+          repeat
+            sID := UpCase(sUsername[1]) + intToStr(random(10)) +
+              intToStr(random(10));
+
+          until not util.isInTable(SupervisorTB, 'SupervisorID', sID);
+
+          // set ADOTable to insert
+          SupervisorTB.Last;
+          SupervisorTB.Insert;
+
+          // insert record
+          SupervisorTB['SupervisorID'] := sID;
+
+          // add username and password
+          SupervisorTB['SupervisorName'] := sUsername;
+          SupervisorTB['Password'] := sPassword;
+
+          // insert user's Organiser
+          if cmbOrganiser.ItemIndex = -1 then
+          begin
+            showMessage('Please select your organiser.');
+            Exit;
+          end;
+          SupervisorTB['OrganiserID'] := arrOrganiserID[cmbOrganiser.ItemIndex];
+
+          //update DB
+          util.UpdateTB(SupervisorTB);
+        end;
+
+    end;
+
+  end;
+
+  dDate := StrToDate(InputBox('Date:', 'Enter Date:', ''));
+
+  // send data to main screen
+  frmMain.iUser := iUser;
+  frmMain.sUsername := sUsername;
+  frmMain.sID := sID;
+  frmMain.dDate := dDate;
+  frmMain.bBegin := bBegin;
+
+  // open main screen
+  frmSignUp.Hide;
+  frmMain.Show;
+  // TODO: chekc this works and fix
+end;
+
+procedure TfrmSignUp.cmbUserChange(Sender: TObject);
+begin
+  // hides/shows combo box for their organiser based on whether user is a supervisor
+  // or not
+  if cmbUser.ItemIndex = 1 then
+  begin
+    lblOrganiser.Show;
+    cmbOrganiser.Show;
+  end
+  else
+  begin
+    lblOrganiser.Hide;
+    cmbOrganiser.Hide;
+  end;
+end;
+
+procedure TfrmSignUp.FormClose(Sender: TObject; var Action: TCloseAction);
+begin
+  Application.Terminate;
+end;
+
+procedure TfrmSignUp.FormShow(Sender: TObject);
+var
+  I: integer;
+  sLine: string;
+begin
+  // set up title
+  lblAppTitle.Caption := 'CAPE TOWN' + #13 + ' SOCCER TOURNAMENT ' + #13 +
+    'PLANNER';
+
+  // add user organiser combo box
+  if not(cmbUser.ItemIndex = 1) then
+  begin
+    lblOrganiser.Hide;
+    cmbOrganiser.Hide;
+  end;
+  // open tables
+  with DataModule1 do
+  begin
+    OrganiserTB.Open;
+    SupervisorTB.Open;
+
+    // add all organisers to organiser combo box
+    OrganiserTB.First;
+    // sets length of array to number of records
+    cmbOrganiser.Items.Clear;
+    SetLength(arrOrganiserID, OrganiserTB.RecordCount);
+    I := 0;
+    while not OrganiserTB.Eof do
+    begin
+      cmbOrganiser.Items.Add(OrganiserTB['OrganiserName']);
+      arrOrganiserID[I] := OrganiserTB['OrganiserID'];;
+      I := I + 1;
+      OrganiserTB.Next;
+    end;
+
+  end;
+
+  iRound := 1;
+  bBegin := false;
+  if not FileExists(fileNameTourn) then
+  begin
+
+    AssignFile(fTournament, fileNameTourn);
+    ReWrite(fTournament);
+    Writeln(fTournament, 'Begun: F');
+    Writeln(fTournament, 'CurrentRound: 1');
+    CloseFile(fTournament);
+  end
+  else
+  begin
+    AssignFile(fTournament, fileNameTourn);
+
+    Reset(fTournament);
+    Readln(fTournament, sLine);
+
+    Delete(sLine, 1, pos(' ', sLine));
+    case sLine[1] of
+      'T':
+        bBegin := true;
+      'F':
+        bBegin := false;
+    end;
+
+    Readln(fTournament, sLine);
+    Delete(sLine, 1, pos(' ', sLine));
+
+    iRound := strToInt(sLine);
+    CloseFile(fTournament);
+
+  end;
+end;
+
+end.

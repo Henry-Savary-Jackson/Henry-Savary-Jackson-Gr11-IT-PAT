@@ -20,7 +20,6 @@ type
     procedure GoToRecordAfter(table: TADOTable; field: string; val: Variant;
       iOccurences: integer);
     procedure GoToNextRecord(table: TADOTable; field: string; val: Variant);
-    procedure insertElement<T>(arr: TArray<T>; e: T);
     procedure UpdateTB(table: TADOTable);
     function SearchList(arr: TArray<string>; e: string): integer;
 
@@ -54,18 +53,18 @@ begin
       begin
         Result := true;
         Exit;
-      end;
+      end; //if
       table.Next;
 
-    end;
+    end; //while not table eof
     table.First;
 
-  end;
+  end; // with DataModule1
 
 end;
 
-// goes to first record with a specified value after wherever the table's pointer
-// is located
+// goes to first record with a specified value,
+// situated after wherever the table's pointer is located
 procedure Utils.GoToNextRecord(table: TADOTable; field: string; val: Variant);
 begin
   with DataModule1 do
@@ -76,14 +75,15 @@ begin
       if table[field] = val then
       begin
         Exit;
-      end;
+      end; //if
 
-    end;
+    end; //while not table eof
     ShowMessage('Could not find record.');
 
-  end;
+  end; // with DataModule 1
 end;
 
+//return the index of a specified value within a list using linear search
 function Utils.SearchList(arr: TArray<string>; e: string): integer;
 var
   I: integer;
@@ -94,16 +94,16 @@ begin
     begin
       Result := I;
       Exit;
-    end;
+    end;//if
   
-  end;
+  end; //for I
     
   Result := -1;
 end;
 
 procedure Utils.UpdateTB(table: TADOTable);
 begin
-//
+//  Utility procedure to ensure a given table is up to date
 table.Edit;
 table.Post;
 table.Refresh;
@@ -122,18 +122,18 @@ begin
     begin
       Result := true;
       Exit;
-    end;
-  end;
+    end; //of
+  end; //for I
 
 end;
 
+  // sets the pointer of a given table to next record with a specified value in a field
+  // after a given amount of occurrences beforehand
 procedure Utils.GoToRecordAfter(table: TADOTable; field: string; val: Variant;
   iOccurences: integer);
 var
   I: integer;
 begin
-  // sets the pointer to next record with a specified value in a field
-  // after a given amount of occurrences beforehand
   with DataModule1 do
   begin
     table.First;
@@ -144,15 +144,15 @@ begin
       begin
         ShowMessage('Could not find record.');
         Exit;
-      end;
+      end; //if
 
       if table[field] = val then
       begin
         I := I + 1;
-      end;
+      end; //if
       table.Next;
 
-    end;
+    end; // while i < occurrence
 
     while not table.Eof do
     begin
@@ -161,15 +161,15 @@ begin
         Exit;
       end;
       table.Next;
-    end;
+    end; //with not table eof
     ShowMessage('Could not find record.');
 
   end;
 end;
 
+// Sets pointer to record with specified primary key value
 function Utils.GoToRecord(table: TADOTable; pk: string; val: Variant): integer;
 begin
-  // Sets pointer to record with specified primary key value
   with DataModule1 do
   begin
     table.First;
@@ -184,11 +184,11 @@ begin
       table.Next;
 
     end;
-    // ShowMessage('Could not find record.');
 
   end;
 end;
 
+// check wheter a string contains at least one digit
 function Utils.ContainsDigit(str: string): boolean;
 var
   I: integer;
@@ -200,16 +200,9 @@ begin
     begin
       Result := true;
       Exit;
-    end;
+    end; // if
 
-  end;
-
-end;
-
-procedure Utils.insertElement<T>(arr: TArray<T>; e: T);
-begin
-  SetLength(arr, length(arr) + 1);
-  arr[length(arr) - 1] := e;
+  end; // for I
 
 end;
 

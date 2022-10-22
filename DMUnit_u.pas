@@ -36,6 +36,7 @@ implementation
 
 procedure TDataModule1.DataModuleCreate(Sender: TObject);
 begin
+//connect to DB
 
 ADOConnection1.Close;
 

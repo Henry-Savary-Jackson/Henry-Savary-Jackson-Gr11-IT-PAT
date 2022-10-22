@@ -45,16 +45,18 @@ var
   sTeamName, sClubName: string;
 begin
 
-  //Input
+  //Obtain team name via editbox
   sTeamName := InputBox('Team name', 'Enter team''s name', '');
 
+  //Obtain club name via editbox
   sClubName := InputBox('Club name', 'Enter name of this team''s club', '');
 
   with DataModule1 do
   begin
-  //insets the team into DB.
-  //If the data is invalid, various error codes are returned to
-  //be used to display a user friendly message;
+
+  //inserts the team's information into DB.
+
+  // handle error codes to display user-friendly messages
    case insertTeamInfo(sTeamName, sClubName) of
      11: showMessage('Please enter a name for the team.');
      12: showMessage('Team''s name cannot be more than 30 characters.');
@@ -62,18 +64,18 @@ begin
      21: showMessage('Please enter a name for the Club.');
      22: showMessage('Club''s name cannot be more than 30 characters.');
      23: showMessage('Club already exists.');
+     31: showMessage('There can be no more than 12 teams.');
    end;
 
     //Post to DB file
-    TeamTB.Edit;
-    TeamTB.Post;
-    TeamTB.Refresh;
+    util.UpdateTB(TeamTB);
   end
 
 end;
 
 procedure TfrmTeams.btnBackClick(Sender: TObject);
 begin
+  //Naviguate to main screen
   frmTeams.Hide;
   frmMain.Show;
 end;
@@ -83,26 +85,28 @@ var
   sName, sLine: string;
 begin
 
+  //obtain name of the team for deletion
   sLine := lstTeams.Items[lstTeams.ItemIndex];
   sName := copy(sLine, 1, pos(' from ', sLine) - 1);
 
+  //delete item from listbox
   lstTeams.Items.Delete(lstTeams.ItemIndex);
 
   with DataModule1 do
   begin
 
+    //go to team's record in Db and delete record
     util.GoToRecord(TeamTB, 'TeamName', sName);
     TeamTB.Delete;
 
-  end;
+  end;  //with datamodule 1
 
+  //disable button of deletion
   btnDelTeam.Enabled := false;
-
-  // TODO : make sure delete doesn't interfere with match allocations
-  //it won't as you can't remove teams after beginning
 
 end;
 
+// Add teams through a textfile
 procedure TfrmTeams.btnFileTeamClick(Sender: TObject);
 var
   fileChooser: TOpenDialog;
@@ -110,24 +114,30 @@ var
   fTeams: TextFile;
   iPos: integer;
 begin
+
+  //create file chooser
   fileChooser := TOpenDialog.Create(self);
 
+  //only allow text file to be chosen
   fileChooser.Filter := 'Text files|*.txt';
-
   fileChooser.FilterIndex := 1;
 
+  // show file chooser
   if fileChooser.Execute then
   begin
+    //optain path to file
     sPath := fileChooser.FileName;
-  end
+  end  // if
   else
   begin
     showMessage('Please choose a text file');
     Exit;
-  end;
+  end; //else
 
+  //free file chooser
   fileChooser.Free;
 
+  //read from textfile
   AssignFile(fTeams, sPath);
 
   Reset(fTeams);
@@ -137,19 +147,26 @@ begin
 
     while not Eof(fTeams) do
     begin
+
+      //Read line
+      // - is the delimiter between team and club name
       Readln(fTeams, sLine);
       iPos := pos('-', sLine);
       sTeamName := copy(sLine, 1, iPos - 1);
       Delete(sLine, 1, iPos);
       sClubName := sLine;
 
-      insertTeamInfo(sTeamName, sClubName);
+      //insert new record
+      // if the limit of teams has been reached, cease to read from text file
+      if insertTeamInfo(sTeamName, sClubName) = 31 then
+      begin
+        Break;
+      end;
 
-    end;
+    end; // while not eof
 
-    TeamTB.Edit;
-    TeamTB.Post;
-    TeamTB.Refresh;
+    //update DB
+    util.UpdateTB(TeamTB);
 
   end;
 
@@ -164,10 +181,13 @@ procedure TfrmTeams.FormShow(Sender: TObject);
 begin
   with DataModule1 do
   begin
+    //open table
     TeamTB.Open;
 
     TeamTB.First;
 
+
+    //display all teams on listbox
     lstTeams.Items.Clear;
 
     while not TeamTB.Eof do
@@ -177,12 +197,14 @@ begin
     end;
 
   end;
+  //disable delete button
   btnDelTeam.Enabled := false;
 
 end;
 
 procedure TfrmTeams.lstTeamsClick(Sender: TObject);
 begin
+  //only enables delete button if a team is clicked on
   case lstTeams.ItemIndex of
     - 1:
       begin
@@ -196,44 +218,62 @@ begin
   end;
 end;
 
+//function to insert a team into DB
+//return codes to indicate whether operation was successful or not
+// If not, code specifies what problem occurred
 function TfrmTeams.insertTeamInfo(team: string; club: string): integer;
 begin
+  //default success code
   Result := 0;
+
   with DataModule1 do
   begin
 
     if team = '' then
     begin
+      //code for empty team name
       result := 11;
       Exit;
     end
     else if length(team) > 30 then
     begin
+      //code for overly long team name
       result := 12;
       Exit;
     end
     else if util.isInTable(TeamTB, 'TeamName', team) then
     begin
+      //code for attempting to add an already existing team
       result := 13;
       Exit;
     end;
 
     if club = '' then
     begin
+      //code for empty club name
       result := 21;
       Exit;
     end
     else if length(club) > 30 then
     begin
+      //code for overly long club name
       result := 22;
       Exit;
     end
     else if util.isInTable(TeamTB, 'ClubName', club) then
     begin
+      //code for adding club that already exists
       result := 23;
+      Exit;
+    end
+    else if TeamTB.RecordCount = 12 then
+    begin
+      //code for going past the limit of allowed teams
+      result := 31;
       Exit;
     end;
 
+    //insert data into a new record
     TeamTB.Last;
     TeamTB.Insert;
 

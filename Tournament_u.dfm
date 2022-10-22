@@ -25,7 +25,7 @@ object frmTournament: TfrmTournament
     OnClick = lstAllocationsClick
   end
   object cmbRound: TComboBox
-    Left = 42
+    Left = 48
     Top = 56
     Width = 161
     Height = 21

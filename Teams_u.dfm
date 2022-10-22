@@ -52,7 +52,7 @@ object frmTeams: TfrmTeams
     OnClick = btnDelTeamClick
   end
   object btnFileTeam: TButton
-    Left = 62
+    Left = 54
     Top = 270
     Width = 139
     Height = 25
