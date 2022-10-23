@@ -366,6 +366,11 @@ begin
     begin
       showMessage('Please enter a location.');
       Exit;
+    end
+    else if length(sLocation) > 100 then
+    begin
+      showMessage('Your location name must be less than 100 characters.');
+      Exit;
     end;
 
     // a supervisor must be selected
