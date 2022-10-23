@@ -82,7 +82,8 @@ begin
   end
   else if Length(sUsername) > 30 then
   begin
-    showMessage('Username shouldn''t be longer than 30 characters.')
+    showMessage('Username shouldn''t be longer than 30 characters.');
+    Exit;
   end
   else if iUser = 1 then
   begin
@@ -180,6 +181,7 @@ begin
     Exit;
   end;
 
+
   with DataModule1 do
   begin
 
@@ -211,6 +213,13 @@ begin
       1:
         begin
 
+          // validate user's Organiser
+          if cmbOrganiser.ItemIndex = -1 then
+          begin
+            showMessage('Please select your organiser.');
+            Exit;
+          end;
+
           // generate unique ID
 
           repeat
@@ -230,12 +239,6 @@ begin
           SupervisorTB['SupervisorName'] := sUsername;
           SupervisorTB['Password'] := sPassword;
 
-          // insert user's Organiser
-          if cmbOrganiser.ItemIndex = -1 then
-          begin
-            showMessage('Please select your organiser.');
-            Exit;
-          end;
           SupervisorTB['OrganiserID'] := arrOrganiserID[cmbOrganiser.ItemIndex];
 
           //update DB

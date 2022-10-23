@@ -261,7 +261,7 @@ begin
   // open main screen
   frmSignUp.Hide;
   frmMain.Show;
-  // TODO: chekc this works and fix
+
 end;
 
 procedure TfrmSignUp.cmbUserChange(Sender: TObject);
@@ -308,53 +308,22 @@ begin
 
     // add all organisers to organiser combo box
     OrganiserTB.First;
+
     // sets length of array to number of records
     cmbOrganiser.Items.Clear;
     SetLength(arrOrganiserID, OrganiserTB.RecordCount);
     I := 0;
+    //populates combobox and parallel array with organisers from DB
     while not OrganiserTB.Eof do
     begin
       cmbOrganiser.Items.Add(OrganiserTB['OrganiserName']);
       arrOrganiserID[I] := OrganiserTB['OrganiserID'];;
       I := I + 1;
       OrganiserTB.Next;
-    end;
+    end; // while not OrganiserTB eof
 
-  end;
+  end; //with Datamodule1
 
-  iRound := 1;
-  bBegin := false;
-  if not FileExists(fileNameTourn) then
-  begin
-
-    AssignFile(fTournament, fileNameTourn);
-    ReWrite(fTournament);
-    Writeln(fTournament, 'Begun: F');
-    Writeln(fTournament, 'CurrentRound: 1');
-    CloseFile(fTournament);
-  end
-  else
-  begin
-    AssignFile(fTournament, fileNameTourn);
-
-    Reset(fTournament);
-    Readln(fTournament, sLine);
-
-    Delete(sLine, 1, pos(' ', sLine));
-    case sLine[1] of
-      'T':
-        bBegin := true;
-      'F':
-        bBegin := false;
-    end;
-
-    Readln(fTournament, sLine);
-    Delete(sLine, 1, pos(' ', sLine));
-
-    iRound := strToInt(sLine);
-    CloseFile(fTournament);
-
-  end;
 end;
 
 end.

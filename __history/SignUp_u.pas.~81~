@@ -82,7 +82,8 @@ begin
   end
   else if Length(sUsername) > 30 then
   begin
-    showMessage('Username shouldn''t be longer than 30 characters.')
+    showMessage('Username shouldn''t be longer than 30 characters.');
+    Exit;
   end
   else if iUser = 1 then
   begin
@@ -180,6 +181,9 @@ begin
     Exit;
   end;
 
+
+
+
   with DataModule1 do
   begin
 
@@ -211,6 +215,13 @@ begin
       1:
         begin
 
+          // insert user's Organiser
+          if cmbOrganiser.ItemIndex = -1 then
+          begin
+            showMessage('Please select your organiser.');
+            Exit;
+          end;
+
           // generate unique ID
 
           repeat
@@ -230,12 +241,6 @@ begin
           SupervisorTB['SupervisorName'] := sUsername;
           SupervisorTB['Password'] := sPassword;
 
-          // insert user's Organiser
-          if cmbOrganiser.ItemIndex = -1 then
-          begin
-            showMessage('Please select your organiser.');
-            Exit;
-          end;
           SupervisorTB['OrganiserID'] := arrOrganiserID[cmbOrganiser.ItemIndex];
 
           //update DB
@@ -261,7 +266,7 @@ begin
   // open main screen
   frmSignUp.Hide;
   frmMain.Show;
-  // TODO: chekc this works and fix
+
 end;
 
 procedure TfrmSignUp.cmbUserChange(Sender: TObject);
@@ -313,49 +318,17 @@ begin
     cmbOrganiser.Items.Clear;
     SetLength(arrOrganiserID, OrganiserTB.RecordCount);
     I := 0;
+    //populates combobox and parallel array with organisers from DB
     while not OrganiserTB.Eof do
     begin
       cmbOrganiser.Items.Add(OrganiserTB['OrganiserName']);
       arrOrganiserID[I] := OrganiserTB['OrganiserID'];;
       I := I + 1;
       OrganiserTB.Next;
-    end;
+    end; // while not OrganiserTB eof
 
-  end;
+  end; //with Datamodule1
 
-  iRound := 1;
-  bBegin := false;
-  if not FileExists(fileNameTourn) then
-  begin
-
-    AssignFile(fTournament, fileNameTourn);
-    ReWrite(fTournament);
-    Writeln(fTournament, 'Begun: F');
-    Writeln(fTournament, 'CurrentRound: 1');
-    CloseFile(fTournament);
-  end
-  else
-  begin
-    AssignFile(fTournament, fileNameTourn);
-
-    Reset(fTournament);
-    Readln(fTournament, sLine);
-
-    Delete(sLine, 1, pos(' ', sLine));
-    case sLine[1] of
-      'T':
-        bBegin := true;
-      'F':
-        bBegin := false;
-    end;
-
-    Readln(fTournament, sLine);
-    Delete(sLine, 1, pos(' ', sLine));
-
-    iRound := strToInt(sLine);
-    CloseFile(fTournament);
-
-  end;
 end;
 
 end.
