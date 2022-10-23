@@ -244,6 +244,8 @@ begin
   //Naviguate to sign up screen
   frmLogin.Hide;
   frmSignUp.bBegin := bBegin;
+  frmSignUp.bTournEnd := bTournEnd;
+  frmSignUp.iRound := iRound;
   frmSignUp.Show;
 end;
 
@@ -317,7 +319,7 @@ begin
         bTournEnd := false;
     end; //switch case
 
-    //don't allow users to sign up if tournament has ended
+    //don't allow new users to sign up if tournament has ended
     btnSignUp.Enabled := not bTournEnd;
 
     CloseFile(fTournament);
