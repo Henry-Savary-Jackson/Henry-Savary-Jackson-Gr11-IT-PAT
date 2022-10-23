@@ -124,7 +124,7 @@ object frmMatch: TfrmMatch
     Top = 260
     Width = 133
     Height = 25
-    Caption = 'Save match results only'
+    Caption = 'Finalise match'
     TabOrder = 7
     OnClick = btnSaveResultsClick
   end

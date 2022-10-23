@@ -22,6 +22,7 @@ type
     procedure saveToFile();
     procedure btnDelSupervisorsClick(Sender: TObject);
     procedure lstSupervisorsClick(Sender: TObject);
+    function insertSupervisor(sName: string): integer;
   private
     { Private declarations }
   public
@@ -49,15 +50,30 @@ var
 begin
   sSupervisorName := inputBox('Supervisor Name', 'Enter their username:', '');
 
-  // checks wheter supervisor is already listBox
-  if not lstSupervisors.Items.IndexOf(sSupervisorName) = -1 then
-  begin
-    showMessage('Username already exists');
-    Exit;
-  end;
+  //Insert supervisor
+  // if name is invalid display corresponding user-friendly message
+  case insertSupervisor(sSupervisorName) of
 
-  // add supervisor username to listbox items
-  lstSupervisors.Items.Add(sSupervisorName);
+    1:
+    begin
+
+      showMessage('Supervisor already exists.');
+      Exit;
+    end;
+
+    2:
+    begin
+      showMessage('Please enter supervisor name.');
+      Exit;
+    end;
+
+    3:
+    begin
+    showMessage('Supervisor name must be less or equal to 30 characters.');
+     Exit;
+    end;
+
+  end;
 
   // save new supervisor to file
   saveToFile();
@@ -120,14 +136,8 @@ begin
     // read supervisor name
     Readln(fInput, sLine);
 
-    if not(lstSupervisors.Items.IndexOf(sLine) = -1) or (sLine = '') then
-    begin
-      // if Supervisor already added, or  supervisorname is empty, skip to next line
-      Continue;
-    end; // if
-
-    // add to list box
-    lstSupervisors.Items.Add(sLine);
+    //insert supervisor if it is valid
+    insertSupervisor(sLine);
   end; // while
 
   CloseFile(fInput);
@@ -157,22 +167,22 @@ begin
   // disable delete button
   btnDelSupervisors.Enabled := false;
 
-  //reads from Supervisor.txt file
+  // reads from Supervisor.txt file
   if FileExists(fileName) then
   begin
     AssignFile(fSupervisors, fileName);
 
     Reset(fSupervisors);
 
-    //clear list box
+    // clear list box
     lstSupervisors.Items.Clear;
 
     while not Eof(fSupervisors) do
     begin
-      //read supervisor name
+      // read supervisor name
       Readln(fSupervisors, sLine);
 
-      //add to list box
+      // add to list box
       lstSupervisors.Items.Add(sLine);
     end; // while not eof
 
@@ -182,9 +192,38 @@ begin
 
 end;
 
+function TfrmSupervisors.insertSupervisor(sName: string): integer;
+begin
+
+  Result := 0;
+
+  // checks wheter supervisor is already listBox
+  if not ( lstSupervisors.Items.IndexOf(sName) = -1) then
+  begin
+    Result := 1;
+    Exit;
+  end;
+
+  if sName = '' then
+  begin
+    Result := 2;
+    Exit;
+  end;
+
+  if Length(sName) > 30 then
+  begin
+    Result := 3;
+    Exit;
+  end;
+
+  // add supervisor username to listbox items
+  lstSupervisors.Items.Add(sName);
+
+end;
+
 procedure TfrmSupervisors.lstSupervisorsClick(Sender: TObject);
 begin
-//only enables delete button if a supervisor is clicked on
+  // only enables delete button if a supervisor is clicked on
   case lstSupervisors.ItemIndex of
     - 1:
       begin
@@ -202,12 +241,12 @@ procedure TfrmSupervisors.saveToFile();
 var
   I: integer;
 begin;
-  //create of repopulate supervisors text file
+  // create of repopulate supervisors text file
   AssignFile(fSupervisors, fileName);
 
   Rewrite(fSupervisors);
 
-  //add all supervisors
+  // add all supervisors
   for I := 0 to lstSupervisors.Items.Count - 1 do
   begin
     Writeln(fSupervisors, lstSupervisors.Items[I]);

@@ -29,7 +29,7 @@ type
     procedure FormShow(Sender: TObject);
     procedure btnSaveDetailsClick(Sender: TObject);
     procedure btnSaveResultsClick(Sender: TObject);
-    procedure saveMatch();
+    function saveMatch(): integer;
     procedure saveAllocs();
     procedure setWinner(sWinnerAllocID, sLoserAllocID: string);
   private
@@ -75,11 +75,30 @@ begin
 end;
 
 procedure TfrmMatch.btnSaveResultsClick(Sender: TObject);
+var
+  bDraw: boolean;
 begin
   // Update record in Database
+  if saveMatch = 1 then
+  begin
+    //prevent going back to tournament screen and editing of database if there is invalid input
+    Exit;
+  end;
+  //if all input is valid, edit matchAllocTB and MatchTB accordingly.
   saveAllocs;
-  saveMatch;
+  // Update DB
+  with DataModule1 do
+  begin
+    util.UpdateTB(MatchAllocTB);
+
+    util.UpdateTB(MatchTB);
+
+    util.UpdateTB(TeamTB);
+
+  end;
+
   showMessage('Match finalised!');
+
   // Naviguate back to tournament screen
   btnBack.Click;
 
@@ -88,7 +107,16 @@ end;
 procedure TfrmMatch.btnSaveDetailsClick(Sender: TObject);
 begin
   // Update record in Database
-  saveMatch;
+  if saveMatch = 1 then
+  begin
+    Exit;
+  end;
+
+  with DataModule1 do
+  begin
+    // Update DB
+    util.UpdateTB(MatchTB);
+  end;
   showMessage('Changes saved!');
   // naviguate back to tournament screen
   btnBack.Click;
@@ -199,23 +227,23 @@ begin
     // match results are only editable by the match's supervisor
     btnSaveResults.Enabled := bOnDay and (not bFinished);
 
-    //if match has a supervisor
-    if not (sSupervisorID = 'NIL') then
+    // if match has a supervisor
+    if not(sSupervisorID = 'NIL') then
     begin
       util.GoToRecord(SupervisorTB, 'SupervisorID', sSupervisorID);
-      //and if the user is not that supervirsor's organiser
-      if not (SupervisorTB['OrganiserID'] = sID) then
+      // and if the user is not that supervirsor's organiser
+      if not(SupervisorTB['OrganiserID'] = sID) then
       begin
-        //disable the organiser from changing the supervisor
+        // disable the organiser from changing the supervisor
         cmbSupervisor.Text := SupervisorTB['SupervisorName'];
         cmbSupervisor.Enabled := false;
         Exit;
       end;
-      
+
     end;
 
-    //otherwise, populate the supervisor combo box with the organiser's
-    //list of supervisors under their watch
+    // otherwise, populate the supervisor combo box with the organiser's
+    // list of supervisors under their watch
     // also populate a parallel array containg the supervisors' IDs
 
     SupervisorTB.First;
@@ -229,19 +257,19 @@ begin
       if (SupervisorTB['OrganiserID'] = sID) then
       begin
 
-          cmbSupervisor.Items.Add(SupervisorTB['SupervisorName']);
+        cmbSupervisor.Items.Add(SupervisorTB['SupervisorName']);
 
-          SetLength(arrSupervisorID, length(arrSupervisorID) + 1);
-          arrSupervisorID[I] := SupervisorTB['SupervisorID'];
+        SetLength(arrSupervisorID, length(arrSupervisorID) + 1);
+        arrSupervisorID[I] := SupervisorTB['SupervisorID'];
 
-          if SupervisorTB['SupervisorID'] = sSupervisorID then
-          begin
-            //set the combo box's selected index to that of
-            //the match's supervisor
-            cmbSupervisor.ItemIndex := I;
-          end; // if
+        if SupervisorTB['SupervisorID'] = sSupervisorID then
+        begin
+          // set the combo box's selected index to that of
+          // the match's supervisor
+          cmbSupervisor.ItemIndex := I;
+        end; // if
 
-          I := I + 1;
+        I := I + 1;
 
       end; // if
 
@@ -253,10 +281,11 @@ begin
 
 end;
 
-procedure TfrmMatch.saveAllocs;
+procedure TfrmMatch.saveAllocs ;
 var
   iScoreOne, iScoreTwo: integer;
   bDraw: boolean;
+  dTempDate : tDate;
 begin
   //
   with DataModule1 do
@@ -271,17 +300,21 @@ begin
 
     if bDraw then
     begin
-
-      // if a draw has occurred, the scores are reset,
-      // and the date is set to be 4 days after the latest match in this round
+      // if there is a draw, the date is set to be 4 days after the latest match in this round
       MatchTB.Filter := 'Round = ' + intToStr(iMatchRound);
       MatchTB.Filtered := true;
-      MatchTB.Sort := 'Round DESC';
+      MatchTB.Sort := 'MatchDate DESC';
       MatchTB.First;
-      dtpDate.Date := MatchTB['MatchDate'] + 4;
+      //store new date in temporary variable
+      dTempDate := MatchTB['MatchDate'] + 4;
       MatchTB.Sort := '';
       MatchTB.Filtered := false;
-    end; // if
+
+      //edit date in match table
+      util.GoToRecord(MatchTB,'MatchID', matchID);
+      MatchTB.Edit;
+      MatchTB['MatchDate'] := dTempDate;
+    end;
 
     // Edit MatchAllocTB
 
@@ -294,6 +327,7 @@ begin
     end // if
     else
     begin
+      // if a draw has occurred, reset scores
       MatchAllocTB['Score'] := 0;
     end; // else
 
@@ -306,6 +340,7 @@ begin
     end // if
     else
     begin
+      // if a draw has occurred, reset scores
       MatchAllocTB['Score'] := 0;
     end; // else
 
@@ -326,33 +361,29 @@ begin
 
       // set this Match to be finished
       bFinished := true;
-
-    end // if bDraw
+      util.GoToRecord(MatchTB, 'MatchID', matchID);
+      MatchTB.Edit;
+      MatchTB['Finished'] := bFinished ;
+    end // if  not bDraw
     else
     begin
-      // user-friendly message
+      //user-friendly message
       showMessage
         ('A draw has occurred. A rematch is scheduled before the round ends');
     end;
-
-    // Update DB
-    util.UpdateTB(MatchAllocTB);
-
-    util.UpdateTB(MatchTB);
-
-    util.UpdateTB(TeamTB);
-
   end; // with Datamodule1
 end;
 
-// this proceudre saves the match's details to the DB
-procedure TfrmMatch.saveMatch;
+// this procedure saves the match's details to the DB
+// returns 0 if process was successful
+// returns 1 if input was invalid
+function TfrmMatch.saveMatch(): integer;
 var
   sLocation: string;
   iSupervisorIndex: integer;
 begin
   //
-
+  Result := 0;
   with DataModule1 do
   begin
     // obtain supervisor from combo box
@@ -365,11 +396,13 @@ begin
     if length(sLocation) = 0 then
     begin
       showMessage('Please enter a location.');
+      Result := 1;
       Exit;
     end
     else if length(sLocation) > 100 then
     begin
       showMessage('Your location name must be less than 100 characters.');
+      Result := 1;
       Exit;
     end;
 
@@ -377,8 +410,10 @@ begin
     if (iSupervisorIndex = -1) and (iUser = 0) then
     begin
       showMessage('Please select a supervisor.');
+      Result := 1;
       Exit;
     end;
+
 
     // edit match record
     util.GoToRecord(MatchTB, 'MatchID', matchID);
@@ -393,9 +428,6 @@ begin
     MatchTB['MatchDate'] := dtpDate.Date;
     MatchTB.Edit;
     MatchTB['Finished'] := bFinished;
-
-    // Update DB
-    util.UpdateTB(MatchTB);
 
   end;
 
