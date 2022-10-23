@@ -262,7 +262,7 @@ begin
     MatchTB.insert;
     MatchTB['MatchID'] := sMatchID;
     MatchTB.Edit;
-    MatchTB['Location'] := 'Idk';
+    MatchTB['Location'] := '';
     MatchTB.Edit;
     MatchTB['MatchDate'] := dDate;
     MatchTB.Edit;
@@ -272,9 +272,9 @@ begin
     MatchTB.Edit;
     MatchTB['Finished'] := false;
 
-    // allocate a random supervisor
+    // allocate a random supervisor to match
     SupervisorTB.First;
-    iRandom := random(SupervisorTB.RecordCount);
+    iRandom := random(SupervisorTB.RecordCount) -1;
     for I := 0 to iRandom do
     begin
       SupervisorTB.Next
