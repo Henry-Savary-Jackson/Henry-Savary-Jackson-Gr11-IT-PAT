@@ -4,45 +4,45 @@ object frmTournament: TfrmTournament
   Caption = 'Tournament'
   ClientHeight = 573
   ClientWidth = 344
-  Color = clBtnFace
-  Font.Charset = DEFAULT_CHARSET
+  Color = clInactiveCaption
+  Font.Charset = ANSI_CHARSET
   Font.Color = clWindowText
-  Font.Height = -11
-  Font.Name = 'Tahoma'
-  Font.Style = []
+  Font.Height = -15
+  Font.Name = 'Agency FB'
+  Font.Style = [fsBold]
   OldCreateOrder = False
   OnClose = FormClose
   OnShow = FormShow
   PixelsPerInch = 96
-  TextHeight = 13
+  TextHeight = 18
   object lstAllocations: TListBox
     Left = 8
-    Top = 83
+    Top = 105
     Width = 323
     Height = 214
-    ItemHeight = 13
+    ItemHeight = 18
     TabOrder = 0
     OnClick = lstAllocationsClick
   end
   object cmbRound: TComboBox
-    Left = 48
-    Top = 56
+    Left = 32
+    Top = 57
     Width = 161
-    Height = 21
+    Height = 26
     TabOrder = 1
     Text = 'Round'
     OnChange = cmbRoundChange
   end
   object redTeams: TRichEdit
     Left = 8
-    Top = 344
+    Top = 356
     Width = 326
     Height = 209
     Font.Charset = ANSI_CHARSET
     Font.Color = clWindowText
     Font.Height = -11
-    Font.Name = 'Tahoma'
-    Font.Style = []
+    Font.Name = 'Agency FB'
+    Font.Style = [fsBold]
     Lines.Strings = (
       'Winners'#39' Bracket:'
       ''
@@ -71,7 +71,7 @@ object frmTournament: TfrmTournament
   end
   object btnNextRnd: TButton
     Left = 128
-    Top = 303
+    Top = 325
     Width = 75
     Height = 25
     Caption = 'Next Round'

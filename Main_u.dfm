@@ -2,29 +2,29 @@ object frmMain: TfrmMain
   Left = 0
   Top = 0
   Caption = 'Main'
-  ClientHeight = 498
+  ClientHeight = 504
   ClientWidth = 355
-  Color = clBtnFace
-  Font.Charset = DEFAULT_CHARSET
+  Color = clInactiveCaption
+  Font.Charset = ANSI_CHARSET
   Font.Color = clWindowText
-  Font.Height = -11
-  Font.Name = 'Tahoma'
-  Font.Style = []
+  Font.Height = -15
+  Font.Name = 'Agency FB'
+  Font.Style = [fsBold]
   OldCreateOrder = False
   OnClose = FormClose
   OnShow = FormShow
   PixelsPerInch = 96
-  TextHeight = 13
+  TextHeight = 18
   object lblWelcome: TLabel
-    Left = 120
+    Left = 112
     Top = 8
-    Width = 102
-    Height = 13
+    Width = 112
+    Height = 18
     Caption = 'Welcome (Username)'
   end
   object btnSignOut: TButton
     Left = 147
-    Top = 465
+    Top = 471
     Width = 75
     Height = 25
     Caption = 'Sign Out'
@@ -32,7 +32,7 @@ object frmMain: TfrmMain
     OnClick = btnSignOutClick
   end
   object btnHelp: TButton
-    Left = 308
+    Left = 307
     Top = 8
     Width = 40
     Height = 25
@@ -46,6 +46,12 @@ object frmMain: TfrmMain
     Width = 257
     Height = 121
     Caption = 'Tournament'
+    Font.Charset = ANSI_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -27
+    Font.Name = 'Agency FB'
+    Font.Style = [fsBold]
+    ParentFont = False
     TabOrder = 2
     OnClick = btnTournamentClick
   end
@@ -55,15 +61,27 @@ object frmMain: TfrmMain
     Width = 257
     Height = 121
     Caption = 'Enter Teams'
+    Font.Charset = ANSI_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -27
+    Font.Name = 'Agency FB'
+    Font.Style = [fsBold]
+    ParentFont = False
     TabOrder = 3
     OnClick = btnTeamsClick
   end
   object btnSupervisors: TButton
     Left = 48
-    Top = 338
+    Top = 344
     Width = 257
     Height = 121
-    Caption = 'Enter Supervisors'
+    Caption = 'Register Supervisors'
+    Font.Charset = ANSI_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -27
+    Font.Name = 'Agency FB'
+    Font.Style = [fsBold]
+    ParentFont = False
     TabOrder = 4
     OnClick = btnSupervisorsClick
   end

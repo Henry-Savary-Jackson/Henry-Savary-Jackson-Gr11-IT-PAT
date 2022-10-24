@@ -4,17 +4,17 @@ object frmTeams: TfrmTeams
   Caption = 'Enter Teams'
   ClientHeight = 303
   ClientWidth = 266
-  Color = clBtnFace
-  Font.Charset = DEFAULT_CHARSET
+  Color = clInactiveCaption
+  Font.Charset = ANSI_CHARSET
   Font.Color = clWindowText
-  Font.Height = -11
-  Font.Name = 'Tahoma'
-  Font.Style = []
+  Font.Height = -15
+  Font.Name = 'Agency FB'
+  Font.Style = [fsBold]
   OldCreateOrder = False
   OnClose = FormClose
   OnShow = FormShow
   PixelsPerInch = 96
-  TextHeight = 13
+  TextHeight = 18
   object btnBack: TButton
     Left = 8
     Top = 8
@@ -29,7 +29,7 @@ object frmTeams: TfrmTeams
     Top = 51
     Width = 249
     Height = 145
-    ItemHeight = 13
+    ItemHeight = 18
     TabOrder = 1
     OnClick = lstTeamsClick
   end
@@ -52,7 +52,7 @@ object frmTeams: TfrmTeams
     OnClick = btnDelTeamClick
   end
   object btnFileTeam: TButton
-    Left = 54
+    Left = 62
     Top = 270
     Width = 139
     Height = 25

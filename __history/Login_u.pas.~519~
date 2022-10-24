@@ -1,0 +1,331 @@
+unit Login_u;
+
+interface
+
+uses
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants,
+  System.Classes, Vcl.Graphics,
+  Vcl.Controls, Vcl.Forms, Data.Win.ADODB, Vcl.Dialogs, Vcl.StdCtrls,
+  Vcl.ExtCtrls, DMUnit_u, Utils_u, Vcl.Imaging.pngimage;
+
+type
+  TfrmLogin = class(TForm)
+    edtUsername: TEdit;
+    edtPassword: TEdit;
+    btnSignIn: TButton;
+    btnSignUp: TButton;
+    lblUsername: TLabel;
+    lblPassword: TLabel;
+    Image1: TImage;
+    lblAppTitle: TLabel;
+    lblSignUp: TLabel;
+    procedure btnSignInClick(Sender: TObject);
+    procedure FormClose(Sender: TObject; var Action: TCloseAction);
+    procedure btnSignUpClick(Sender: TObject);
+    procedure FormShow(Sender: TObject);
+    function NotifySupervisor(dDate: TDate; sUsername, sID: string;
+      iUser: integer): boolean;
+
+  private
+    { Private declarations }
+  public
+    { Public declarations }
+  end;
+
+var
+  frmLogin: TfrmLogin;
+  //Textfile containing relevant information on tournament
+
+  fTournament: TextFile;
+  iRound: integer;
+  //iRound: current round of tournament
+  bBegin: boolean;
+  //bBegin : whether the tournament has begun
+  bTournEnd : boolean;
+  //bTournend : whether tournament has ended
+
+const
+  fileNameTourn = 'Tournament.txt';
+
+implementation
+
+uses
+  Main_u,
+  SignUp_u,
+  Match_u;
+
+{$R *.dfm}
+
+procedure TfrmLogin.btnSignInClick(Sender: TObject);
+var
+  sID, sUsername, sPassword: string;
+  iUser: integer;
+  dDate: TDate;
+begin
+  with DataModule1 do
+  begin
+
+    //obtain username
+    sUsername := edtUsername.Text;
+
+    // validate Username
+
+    if sUsername = '' then
+    begin
+      showMessage('Please enter your username.');
+      Exit;
+    end
+    else
+    begin
+      //determine what type of user they are
+      if util.isInTable(OrganiserTB, 'OrganiserName', sUsername) then
+      begin
+        iUser := 0;
+      end
+      else if util.isInTable(SupervisorTB, 'SupervisorName', sUsername) then
+      begin
+        iUser := 1;
+      end
+      else
+      begin
+        //username must exist
+        showMessage('User doesn''t exist');
+        Exit;
+      end;
+
+    end;
+
+    //obtain password
+    sPassword := edtPassword.Text;
+
+    //check if passwpord is correct
+    case iUser of
+      0:
+        begin
+          if not(OrganiserTB['Password'] = sPassword) then
+          begin
+            showMessage('Incorrect Password.');
+            Exit;
+          end;
+        end;
+      1:
+        begin
+          if not(SupervisorTB['Password'] = sPassword) then
+          begin
+            showMessage('Incorrect Password.');
+            Exit;
+          end;
+        end;
+
+    end;
+
+    // obtain User ID
+    case iUser of
+      0:
+        sID := OrganiserTB['OrganiserID'];
+      1:
+        sID := SupervisorTB['SupervisorID'];
+    end;
+
+    //obtain current date
+    dDate := StrToDate(InputBox('Date:', 'Enter Date:', ''));
+
+    if NotifySupervisor(dDate, sUsername, sID, iUser) then
+    begin;
+      // Naviguate to match screen
+      frmLogin.Hide;
+      frmMatch.Show;
+    end
+    else
+    begin
+      //pass program data
+      frmMain.iUser := iUser;
+      frmMain.iRound := iRound;
+      frmMain.sID := sID;
+      frmMain.bBegin := bBegin;
+      frmMain.sUsername := sUsername;
+      frmMain.dDate := dDate;
+      frmMain.bTournEnd := bTournEnd;
+
+      // Naviguate to main screen
+      frmLogin.Hide;
+      frmMain.Show;
+    end;
+
+  end;
+
+end;
+
+//this function checks whether the user, if they are a supervisor
+// has a match to umpire on the current date
+function TfrmLogin.NotifySupervisor(dDate: TDate; sUsername, sID: string;
+  iUser: integer): boolean;
+var
+  sMatchID, sTeamOne, sTeamTwo: string;
+  arrAllocID : TArray<string>;
+begin
+  with DataModule1 do
+  begin
+    if iUser = 1 then  //user must be supervisor
+    begin
+
+      //Match Must be today, supervisor by the supervisor, and not already finished
+      MatchTB.Filter := 'MatchDate = ' + DateToStr(dDate) +
+        ' AND  SupervisorID = ' + QuotedStr(sID) + ' AND Finished = False';
+      MatchTB.Filtered := true;
+
+      if not(MatchTB.RecordCount = 0) then
+      begin
+        MatchTB.First;
+        sMatchID := MatchTB['MatchID'];
+        MatchTB.Filtered := false;
+        MatchTB.First;
+
+        //go to relevant match's record
+        MatchAllocTB.Filter := 'MatchID = ' + QuotedStr(sMatchID);
+        MatchAllocTB.Filtered := true;
+        MatchAllocTB.First;
+        setLength(arrAllocID,2);
+
+        //Obtain the teams that are playing this match
+        arrAllocID[0] := MatchAllocTB['AllocID'];
+        sTeamOne := MatchAllocTB['TeamName'];
+        MatchAllocTB.Next;
+
+        arrAllocID[1] := MatchAllocTB['AllocID'];
+        sTeamTwo := MatchAllocTB['TeamName'];
+
+
+        MatchAllocTB.Filtered := false;
+        MatchAllocTB.First;
+
+        //Show Dialog to ask user whether they want to be taken directly to the match
+        //to enter results
+        if MessageDlg('You have to umpire the match ' + sTeamOne + ' vs ' +
+          sTeamTwo + ' today. Do you want to enter results now?',
+          mtConfirmation, [mbYes, mbNo], 0, mbYes) = mrYes then
+        begin
+          //pass program data
+          frmMatch.matchID := sMatchID;
+          frmMatch.iUser := iUser;
+          frmMatch.sID := sID;
+          frmMatch.bBegin := bBegin;
+          frmMatch.arrAllocID := arrAllocID;
+          frmMatch.sUsername := sUsername;
+          frmMatch.iTournRound := iRound;
+          frmMatch.dDate := dDate;
+          frmMatch.bTournEnd := bTournEnd;
+
+          Result := true;
+
+        end
+        else
+          Result := false;
+
+      end //if user has a match to umpire
+      else
+      begin
+        Result := false;
+      end; //else
+      MatchTB.Filtered := false;
+
+    end  //if User =1
+    else
+    begin
+      Result := false;
+    end; //else
+
+  end;  //with Datamodule1
+end;
+
+procedure TfrmLogin.btnSignUpClick(Sender: TObject);
+
+begin
+  //Naviguate to sign up screen
+  frmLogin.Hide;
+  frmSignUp.bBegin := bBegin;
+  frmSignUp.bTournEnd := bTournEnd;
+  frmSignUp.iRound := iRound;
+  frmSignUp.Show;
+end;
+
+procedure TfrmLogin.FormClose(Sender: TObject; var Action: TCloseAction);
+begin
+  Application.Terminate;
+end;
+
+procedure TfrmLogin.FormShow(Sender: TObject);
+var
+  sLine: string;
+begin
+  // set up title
+  lblAppTitle.Caption := 'CAPE TOWN' + #13 + ' SOCCER TOURNAMENT ' + #13 +
+    'PLANNER';
+
+  // open tables
+  with DataModule1 do
+  begin
+    OrganiserTB.Open;
+    SupervisorTB.Open;
+    MatchTB.Open;
+    MatchAllocTB.Open;
+
+  end;
+
+  //set default values for tournament variables
+  iRound := 1;
+  bBegin := false;
+  bTournEnd := false;
+
+  if not FileExists(fileNameTourn) then
+  begin
+    //if the tournament info file does not exist, create a default one
+    AssignFile(fTournament, fileNameTourn);
+    ReWrite(fTournament);
+    Writeln(fTournament, 'Begun: F');
+    Writeln(fTournament, 'CurrentRound: 1');
+    Writeln(fTournament, 'End: F');
+    CloseFile(fTournament);
+  end
+  else
+  begin
+    //otherwise read from file
+    AssignFile(fTournament, fileNameTourn);
+
+    Reset(fTournament);
+    Readln(fTournament, sLine);
+
+    //read whether the tournament has begun or not
+    Delete(sLine, 1, pos(' ', sLine));
+    case sLine[1] of
+      'T':
+        bBegin := true;
+      'F':
+        bBegin := false;
+    end; //switch case
+
+    //read the current round of the tournament
+    Readln(fTournament, sLine);
+    Delete(sLine, 1, pos(' ', sLine));
+    iRound := strToInt(sLine);
+
+    //read whether the tournament has ended or not
+    Readln(fTournament,sLIne);
+    Delete(sLine, 1, pos(' ', sLine));
+    case sLine[1] of
+      'T':
+        bTournEnd := true;
+      'F':
+        bTournEnd := false;
+    end; //switch case
+
+    //don't allow new users to sign up if tournament has ended
+    btnSignUp.Enabled := not bTournEnd;
+
+    CloseFile(fTournament);
+
+  end;
+
+end;
+
+end.

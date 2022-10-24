@@ -6,7 +6,7 @@ uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants,
   System.Classes, Vcl.Graphics,
   Vcl.Controls, Vcl.Forms, Data.Win.ADODB, Vcl.Dialogs, Vcl.StdCtrls,
-  Vcl.ExtCtrls, DMUnit_u, Utils_u;
+  Vcl.ExtCtrls, DMUnit_u, Utils_u, Vcl.Imaging.pngimage;
 
 type
   TfrmLogin = class(TForm)
@@ -16,7 +16,7 @@ type
     btnSignUp: TButton;
     lblUsername: TLabel;
     lblPassword: TLabel;
-    Image1: TImage;
+    imLogo: TImage;
     lblAppTitle: TLabel;
     lblSignUp: TLabel;
     procedure btnSignInClick(Sender: TObject);
@@ -261,6 +261,9 @@ begin
   // set up title
   lblAppTitle.Caption := 'CAPE TOWN' + #13 + ' SOCCER TOURNAMENT ' + #13 +
     'PLANNER';
+
+  //set up image
+  imLogo.Stretch := true;
 
   // open tables
   with DataModule1 do

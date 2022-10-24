@@ -6,13 +6,12 @@ uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants,
   System.Classes, Vcl.Graphics,
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, Vcl.ExtCtrls, Utils_u,
-  DMUnit_u;
+  DMUnit_u, Vcl.Imaging.pngimage;
 
 type
   TfrmSignUp = class(TForm)
     lblUsername: TLabel;
     lblPassword: TLabel;
-    Image1: TImage;
     lblAppTitle: TLabel;
     lblOrganiser: TLabel;
     edtUsername: TEdit;
@@ -22,6 +21,7 @@ type
     cmbOrganiser: TComboBox;
     lblSignIn: TLabel;
     btnSignIn: TButton;
+    imLogo: TImage;
     procedure btnSignUpClick(Sender: TObject);
     procedure FormShow(Sender: TObject);
     procedure btnSignInClick(Sender: TObject);
@@ -296,6 +296,9 @@ begin
   // set up title
   lblAppTitle.Caption := 'CAPE TOWN' + #13 + ' SOCCER TOURNAMENT ' + #13 +
     'PLANNER';
+
+  //set up logo
+  imLogo.Stretch := true;
 
   // add user organiser combo box
   if not(cmbUser.ItemIndex = 1) then

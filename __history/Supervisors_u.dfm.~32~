@@ -1,0 +1,93 @@
+object frmSupervisors: TfrmSupervisors
+  Left = 0
+  Top = 0
+  Caption = 'Enter Supervisors'
+  ClientHeight = 313
+  ClientWidth = 275
+  Color = clInactiveCaption
+  Font.Charset = DEFAULT_CHARSET
+  Font.Color = clWindowText
+  Font.Height = -11
+  Font.Name = 'Tahoma'
+  Font.Style = []
+  OldCreateOrder = False
+  OnClose = FormClose
+  OnShow = FormShow
+  PixelsPerInch = 96
+  TextHeight = 13
+  object btnBack: TButton
+    Left = 8
+    Top = 8
+    Width = 57
+    Height = 37
+    Caption = 'Back'
+    Font.Charset = ANSI_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -13
+    Font.Name = 'Agency FB'
+    Font.Style = [fsBold]
+    ParentFont = False
+    TabOrder = 0
+    OnClick = btnBackClick
+  end
+  object lstSupervisors: TListBox
+    Left = 8
+    Top = 51
+    Width = 249
+    Height = 145
+    Font.Charset = ANSI_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -12
+    Font.Name = 'Agency FB'
+    Font.Style = [fsBold]
+    ItemHeight = 15
+    ParentFont = False
+    TabOrder = 1
+    OnClick = lstSupervisorsClick
+  end
+  object btnAddSupervisor: TButton
+    Left = 96
+    Top = 207
+    Width = 89
+    Height = 25
+    Caption = 'Add Supervisor'
+    Font.Charset = ANSI_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -13
+    Font.Name = 'Agency FB'
+    Font.Style = [fsBold]
+    ParentFont = False
+    TabOrder = 2
+    OnClick = btnAddSupervisorClick
+  end
+  object btnDelSupervisors: TButton
+    Left = 82
+    Top = 238
+    Width = 113
+    Height = 25
+    Caption = 'Remove Supervisor'
+    Font.Charset = ANSI_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -13
+    Font.Name = 'Agency FB'
+    Font.Style = [fsBold]
+    ParentFont = False
+    TabOrder = 3
+    OnClick = btnDelSupervisorsClick
+  end
+  object btnFileSupervisors: TButton
+    Left = 72
+    Top = 269
+    Width = 139
+    Height = 25
+    Caption = 'Add Supervisor name file'
+    Font.Charset = ANSI_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -13
+    Font.Name = 'Agency FB'
+    Font.Style = [fsBold]
+    ParentFont = False
+    TabOrder = 4
+    OnClick = btnFileSupervisorsClick
+  end
+end

@@ -2,19 +2,19 @@ object frmSupervisors: TfrmSupervisors
   Left = 0
   Top = 0
   Caption = 'Enter Supervisors'
-  ClientHeight = 323
+  ClientHeight = 313
   ClientWidth = 275
-  Color = clBtnFace
-  Font.Charset = DEFAULT_CHARSET
+  Color = clInactiveCaption
+  Font.Charset = ANSI_CHARSET
   Font.Color = clWindowText
-  Font.Height = -11
-  Font.Name = 'Tahoma'
-  Font.Style = []
+  Font.Height = -15
+  Font.Name = 'Agency FB'
+  Font.Style = [fsBold]
   OldCreateOrder = False
   OnClose = FormClose
   OnShow = FormShow
   PixelsPerInch = 96
-  TextHeight = 13
+  TextHeight = 18
   object btnBack: TButton
     Left = 8
     Top = 8
@@ -29,7 +29,7 @@ object frmSupervisors: TfrmSupervisors
     Top = 51
     Width = 249
     Height = 145
-    ItemHeight = 13
+    ItemHeight = 18
     TabOrder = 1
     OnClick = lstSupervisorsClick
   end
@@ -43,7 +43,7 @@ object frmSupervisors: TfrmSupervisors
     OnClick = btnAddSupervisorClick
   end
   object btnDelSupervisors: TButton
-    Left = 96
+    Left = 82
     Top = 238
     Width = 113
     Height = 25
