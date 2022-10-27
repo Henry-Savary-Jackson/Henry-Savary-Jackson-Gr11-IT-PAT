@@ -417,16 +417,21 @@ begin
 
     // edit match record
     util.GoToRecord(MatchTB, 'MatchID', matchID);
-    MatchTB.Edit;
 
     if iUser = 0 then
+    begin
+       MatchTB.Edit;
+
       MatchTB['SupervisorID'] := arrSupervisorID[iSupervisorIndex];
 
+    end;
+
     MatchTB.Edit;
+
     MatchTB['Location'] := sLocation;
-    MatchTB.Edit;
+
     MatchTB['MatchDate'] := dtpDate.Date;
-    MatchTB.Edit;
+
     MatchTB['Finished'] := bFinished;
 
   end;

@@ -250,8 +250,9 @@ begin
   end;
 
   //obtain current date
-  dDate := StrToDate(InputBox('Date:', 'Enter Date:', ''));
+  dDate := Date;
 
+  //user-friendly message
   ShowMessage('Successfully Registered!');
 
   // pass along data to main screen

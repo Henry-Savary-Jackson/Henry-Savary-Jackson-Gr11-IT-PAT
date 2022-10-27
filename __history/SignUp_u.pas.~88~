@@ -6,13 +6,12 @@ uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants,
   System.Classes, Vcl.Graphics,
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, Vcl.ExtCtrls, Utils_u,
-  DMUnit_u;
+  DMUnit_u, Vcl.Imaging.pngimage;
 
 type
   TfrmSignUp = class(TForm)
     lblUsername: TLabel;
     lblPassword: TLabel;
-    Image1: TImage;
     lblAppTitle: TLabel;
     lblOrganiser: TLabel;
     edtUsername: TEdit;
@@ -22,6 +21,7 @@ type
     cmbOrganiser: TComboBox;
     lblSignIn: TLabel;
     btnSignIn: TButton;
+    imLogo: TImage;
     procedure btnSignUpClick(Sender: TObject);
     procedure FormShow(Sender: TObject);
     procedure btnSignInClick(Sender: TObject);
@@ -82,8 +82,8 @@ begin
   end
   else if Length(sUsername) > 30 then
   begin
-    showMessage('Username shouldn''t be longer than 30 characters.')
-    Exit
+    showMessage('Username shouldn''t be longer than 30 characters.');
+    Exit;
   end
   else if iUser = 1 then
   begin
@@ -177,9 +177,10 @@ begin
   else if not util.ContainsDigit(sPassword) then
   begin
     // check whether password has atleast one digit
-    showMessage('Your password must contain atleast one digit');
+    showMessage('Your password must contain at least one digit');
     Exit;
   end;
+
 
   with DataModule1 do
   begin
@@ -212,6 +213,13 @@ begin
       1:
         begin
 
+          // validate user's Organiser
+          if cmbOrganiser.ItemIndex = -1 then
+          begin
+            showMessage('Please select your organiser.');
+            Exit;
+          end;
+
           // generate unique ID
 
           repeat
@@ -231,12 +239,6 @@ begin
           SupervisorTB['SupervisorName'] := sUsername;
           SupervisorTB['Password'] := sPassword;
 
-          // insert user's Organiser
-          if cmbOrganiser.ItemIndex = -1 then
-          begin
-            showMessage('Please select your organiser.');
-            Exit;
-          end;
           SupervisorTB['OrganiserID'] := arrOrganiserID[cmbOrganiser.ItemIndex];
 
           //update DB
@@ -248,7 +250,9 @@ begin
   end;
 
   //obtain current date
-  dDate := StrToDate(InputBox('Date:', 'Enter Date:', ''));
+  dDate := Date;
+
+  ShowMessage('Successfully Registered!');
 
   // pass along data to main screen
   frmMain.iUser := iUser;
@@ -294,6 +298,9 @@ begin
   // set up title
   lblAppTitle.Caption := 'CAPE TOWN' + #13 + ' SOCCER TOURNAMENT ' + #13 +
     'PLANNER';
+
+  //set up logo
+  imLogo.Stretch := true;
 
   // add user organiser combo box
   if not(cmbUser.ItemIndex = 1) then

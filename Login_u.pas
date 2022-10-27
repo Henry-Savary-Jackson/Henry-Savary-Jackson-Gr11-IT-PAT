@@ -138,7 +138,7 @@ begin
     end;
 
     //obtain current date
-    dDate := StrToDate(InputBox('Date:', 'Enter Date:', ''));
+    dDate := Date;
 
     if NotifySupervisor(dDate, sUsername, sID, iUser) then
     begin;

@@ -261,16 +261,12 @@ begin
 
     MatchTB.Last;
     MatchTB.insert;
+
     MatchTB['MatchID'] := sMatchID;
-    MatchTB.Edit;
     MatchTB['Location'] := '';
-    MatchTB.Edit;
     MatchTB['MatchDate'] := dDate;
-    MatchTB.Edit;
     MatchTB['LosersBracket'] := LB;
-    MatchTB.Edit;
     MatchTB['Round'] := iRound;
-    MatchTB.Edit;
     MatchTB['Finished'] := false;
 
     // allocate a random supervisor to match
@@ -280,7 +276,7 @@ begin
     begin
       SupervisorTB.Next
     end; // for I
-    MatchTB.Edit;
+    //MatchTB.Edit;
     MatchTB['SupervisorID'] := SupervisorTB['SupervisorID'];
     SupervisorTB.First;
 
@@ -312,13 +308,9 @@ begin
     MatchAllocTB.insert;
 
     MatchAllocTB['AllocID'] := sAllocID;
-    MatchAllocTB.Edit;
     MatchAllocTB['TeamName'] := sTeam;
-    MatchAllocTB.Edit;
     MatchAllocTB['Won'] := false;
-    MatchAllocTB.Edit;
     MatchAllocTB['Score'] := 0;
-    MatchAllocTB.Edit;
     MatchAllocTB['MatchID'] := sMatchID;
 
     util.UpdateTB(MatchAllocTB);
