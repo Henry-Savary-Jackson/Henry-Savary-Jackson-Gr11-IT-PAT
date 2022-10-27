@@ -309,7 +309,6 @@ begin
 
     MatchAllocTB['AllocID'] := sAllocID;
     MatchAllocTB['TeamName'] := sTeam;
-    MatchAllocTB['Won'] := false;
     MatchAllocTB['Score'] := 0;
     MatchAllocTB['MatchID'] := sMatchID;
 

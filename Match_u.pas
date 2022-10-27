@@ -459,14 +459,10 @@ begin
     // Edit winner's alloc record
     util.GoToRecord(MatchAllocTB, 'AllocID', sWinnerAllocID);
     sWinnerTeam := MatchAllocTB['TeamName'];
-    MatchAllocTB.Edit;
-    MatchAllocTB['Won'] := true;
 
     // Edit loser's alloc record
     util.GoToRecord(MatchAllocTB, 'AllocID', sLoserAllocID);
     sLoserTeam := MatchAllocTB['TeamName'];
-    MatchAllocTB.Edit;
-    MatchAllocTB['Won'] := false;
 
     // Change Numwon
     util.GoToRecord(TeamTB, 'TeamName', sWinnerTeam);
