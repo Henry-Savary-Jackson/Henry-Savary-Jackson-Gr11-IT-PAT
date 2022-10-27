@@ -15,6 +15,13 @@ object frmTournament: TfrmTournament
   OnShow = FormShow
   PixelsPerInch = 96
   TextHeight = 18
+  object lblRound: TLabel
+    Left = 30
+    Top = 60
+    Width = 35
+    Height = 18
+    Caption = 'Round:'
+  end
   object lstAllocations: TListBox
     Left = 8
     Top = 105
@@ -25,9 +32,9 @@ object frmTournament: TfrmTournament
     OnClick = lstAllocationsClick
   end
   object cmbRound: TComboBox
-    Left = 32
+    Left = 71
     Top = 57
-    Width = 161
+    Width = 145
     Height = 26
     TabOrder = 1
     Text = 'Round'
@@ -48,6 +55,7 @@ object frmTournament: TfrmTournament
       ''
       'Losers'#39' Bracket:')
     ParentFont = False
+    ReadOnly = True
     TabOrder = 2
     Zoom = 100
   end
@@ -79,7 +87,7 @@ object frmTournament: TfrmTournament
     OnClick = btnNextRndClick
   end
   object chbLoserBracket: TCheckBox
-    Left = 215
+    Left = 239
     Top = 60
     Width = 97
     Height = 17

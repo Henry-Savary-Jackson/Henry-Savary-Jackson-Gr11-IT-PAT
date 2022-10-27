@@ -13,7 +13,6 @@ type
   TfrmMain = class(TForm)
     lblWelcome: TLabel;
     btnSignOut: TButton;
-    btnHelp: TButton;
     btnTournament: TButton;
     btnTeams: TButton;
     btnSupervisors: TButton;
@@ -23,7 +22,6 @@ type
     procedure btnTournamentClick(Sender: TObject);
     procedure btnSignOutClick(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
-    procedure btnHelpClick(Sender: TObject);
   private
     { Private declarations }
   public
@@ -49,17 +47,9 @@ uses
   Supervisors_u,
   Teams_u,
   Tournament_u,
-  Help_u,
   Match_u;
 
 {$R *.dfm}
-
-procedure TfrmMain.btnHelpClick(Sender: TObject);
-begin
-  //naviguate to team screen
-  frmHelp.Show;
-  frmMain.Hide;
-end;
 
 procedure TfrmMain.btnSignOutClick(Sender: TObject);
 begin

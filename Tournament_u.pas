@@ -17,6 +17,7 @@ type
     btnBeginTournament: TButton;
     btnNextRnd: TButton;
     chbLoserBracket: TCheckBox;
+    lblRound: TLabel;
     procedure lstAllocationsClick(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure btnBackClick(Sender: TObject);

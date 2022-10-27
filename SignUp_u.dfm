@@ -30,7 +30,7 @@ object frmSignUp: TfrmSignUp
     Caption = 'Password:'
   end
   object lblAppTitle: TLabel
-    Left = 19
+    Left = 80
     Top = 79
     Width = 367
     Height = 12
@@ -2974,7 +2974,7 @@ object frmSignUp: TfrmSignUp
       'Supervisor')
   end
   object btnSignUp: TButton
-    Left = 152
+    Left = 146
     Top = 320
     Width = 75
     Height = 25

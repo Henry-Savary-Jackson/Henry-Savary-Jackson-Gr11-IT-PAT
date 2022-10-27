@@ -177,7 +177,7 @@ begin
   else if not util.ContainsDigit(sPassword) then
   begin
     // check whether password has atleast one digit
-    showMessage('Your password must contain atleast one digit');
+    showMessage('Your password must contain at least one digit');
     Exit;
   end;
 
@@ -251,6 +251,8 @@ begin
 
   //obtain current date
   dDate := StrToDate(InputBox('Date:', 'Enter Date:', ''));
+
+  ShowMessage('Successfully Registered!');
 
   // pass along data to main screen
   frmMain.iUser := iUser;

@@ -1,0 +1,10 @@
+﻿[btnBack]
+Coordinates=10,10,61,58
+
+[]
+Coordinates=169,1,91,36
+
+[redHelp]
+Coordinates=81,10,70,36
+Visible=True
+

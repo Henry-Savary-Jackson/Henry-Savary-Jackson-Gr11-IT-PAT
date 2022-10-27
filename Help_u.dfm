@@ -11,6 +11,7 @@ object frmHelp: TfrmHelp
   Font.Name = 'Agency FB'
   Font.Style = [fsBold]
   OldCreateOrder = False
+  OnClose = FormClose
   PixelsPerInch = 96
   TextHeight = 18
   object btnBack: TButton
@@ -22,13 +23,237 @@ object frmHelp: TfrmHelp
     TabOrder = 0
     OnClick = btnBackClick
   end
-  object RichEdit1: TRichEdit
+  object redHelp: TRichEdit
     Left = 8
     Top = 51
     Width = 395
     Height = 275
     Lines.Strings = (
-      'RichEdit1')
+      'LOGIN SCREEN:'
+      ''
+      'Enter your username and your password correctly to login.'
+      'This is if you already have an account.'
+      ''
+      
+        'Once the tournament has ended, no new users can be registered, s' +
+        'o the Sign '
+      'Up button taking you to the Sign Up screen is disabled.'
+      ''
+      ''
+      ''
+      'SIGN UP SCREEN:'
+      'If you do not have an account, create it using this screen.'
+      ''
+      
+        'Enter a username less than 30 characters. This username must not' +
+        ' already '
+      'exist.'
+      
+        'If you are a supervisor, make sure to enter the exact username y' +
+        'ou were '
+      'allocated by your supervisor.'
+      ''
+      
+        'Your password must have between 8 and 15 characters. It must con' +
+        'tain '
+      'atleast one special character '
+      'and one digit. Special characters are as follows:'
+      ' !@#$%^&*()=+{}[]:;",.<>?/\|'
+      ''
+      
+        'Use the first combo box to indicate whether you are a supervisor' +
+        ' or an '
+      
+        'organiser. If you are a supervisor, use the combo box to indicat' +
+        'e '
+      'your organiser.'
+      ''
+      'Then, click the Sign in button to finish your registration.'
+      ''
+      'MAIN SCREEN:'
+      'This screen is to naviguate to other screens.'
+      
+        'Note that the Teams screen is inaccessible after the competition' +
+        ' has begun.'
+      
+        'Note that the Supervisors screen is inaccessible after the end o' +
+        'f the '
+      'competition'
+      
+        'Both of the aforementioned screen are invariably inaccessible to' +
+        ' '
+      'orgnanisers.'
+      ''
+      ''
+      ''
+      ''
+      'TOURNAMENT SCREEN:'
+      
+        'The Begin button is used to begin the tournament and create the ' +
+        'fixtures for '
+      
+        'the first round. Once the tournament has begun, this button is p' +
+        'ermanently '
+      'disabled.'
+      ''
+      
+        'Once all of the matches for the current round are finished, the ' +
+        'organiser is '
+      
+        'able to click the Next Round button to make the fixtures for the' +
+        ' next round. '
+      
+        'Once there is only one team remaining, clicking the button will ' +
+        'signal '
+      
+        'the end of the tournament, after which the Next Round button is ' +
+        'permanently '
+      'disabled.'
+      ''
+      
+        'Both the Begin button and the Next Round button are inaccessible' +
+        ' to '
+      'supervisors.'
+      ''
+      
+        'Use the drop down to choose the round whose matches you want to ' +
+        'view on '
+      
+        'the list box. If you want to view the matches in this round'#39's lo' +
+        'sers'#39' bracket, '
+      
+        'check the losers'#39' bracket checkbox. Note that the final match/es' +
+        ' is never on '
+      'the losers'#39' bracket.'
+      ''
+      
+        'Select one of the matches displayed on the listbox to view it on' +
+        ' the match '
+      'screen.'
+      ''
+      
+        'The teams rich edit displays all the teams currently partaking i' +
+        'n the '
+      
+        'tournament. If a team doesn'#39't appear here, they have been disqua' +
+        'lified. '
+      
+        'Once the tournament is over, this rich edit will display the 1st' +
+        ', 2nd and 3rd '
+      'place.'
+      ''
+      ''
+      'MATCH SCREEN:'
+      'This screen is to view and edit a match'#39's details.'
+      ''
+      
+        'The score for a match can only be entered by the match'#39's supervi' +
+        'sor on the '
+      'day of the match.'
+      ''
+      
+        'Match details, such as date, location and supervisor can be edit' +
+        'ed '
+      
+        'beforehand. However, only an organiser can change the match'#39's su' +
+        'pervisor'
+      
+        'if the original supervisor is registered under the organiser'#39's j' +
+        'uristiction.'
+      
+        'Furthermore, the date and location can only be edited by a super' +
+        'visor'
+      'if they are that match'#39's chosen supervisor.'
+      ''
+      
+        'The Save Match Details Only button only saves details, which are' +
+        ' its '
+      'supervisor, location and date. It doesn'#39't save any scores.'
+      ''
+      
+        'The Finalise Match button is only clickable by the match'#39's chose' +
+        'n supervisor '
+      
+        'on the day of the match.This button saves the scores and determi' +
+        'nes '
+      
+        'the match'#39's winner. If there is a draw, the match is simply resc' +
+        'heduled to a '
+      
+        'later date.  This button also saves match details, which  locati' +
+        'on,'
+      ' date and supervisor.'
+      ''
+      
+        'Once the Finalise Match button is clicked, the match is consider' +
+        'ed finished, '
+      'and is no longer editable'
+      'by anyone.'
+      ''
+      'The scores are between 0 and 16.'
+      
+        'The teams location cannot be empty and must be less than or equa' +
+        'l to 100 '
+      'characters.'
+      ''
+      ''
+      'ENTER TEAMS SCREEN:'
+      'This screen is to remove/add new teams to the tournament.'
+      ''
+      
+        'Add one team by clicking the Add Team button. Please note that b' +
+        'oth the '
+      
+        'team'#39's name  and club name must be unique and less than or equal' +
+        ' to '
+      '30 characters.'
+      ''
+      
+        'To remove a team from the competition, select it on the list box' +
+        ' then click the '
+      'Remove Team button.'
+      ''
+      
+        'To enter several teams at once, you can input a text file uing t' +
+        'he Add team '
+      'name file.'
+      
+        'Each line in the text file represents a new record. Each line mu' +
+        'st enter the '
+      
+        'team name as well as the club name delimited by a hypen, like so' +
+        ':'
+      'teamName-clubName.'
+      ''
+      ''
+      'ENTER SUPERVISORS SCREEN:'
+      ''
+      
+        'This screen is to set which the list of supervisors usernames. A' +
+        ' supervisor'
+      'can only create their account if their username is on this list.'
+      ''
+      
+        'To add one new supervisor username, click the Add Supervisor but' +
+        'ton. Note '
+      
+        'that the username must be unique and less than  or equal to 30 c' +
+        'haracters.'
+      ''
+      
+        'To remove a supervisor name, select it on the list box and click' +
+        ' the Remove '
+      'Supervisor button.'
+      ''
+      
+        'Note that this doesn'#39't delete any account, only a valid username' +
+        ' from the list, '
+      
+        'so if a supervisor with that username already exists, their acco' +
+        'unt will '
+      'remain.'
+      '')
+    ReadOnly = True
     TabOrder = 1
     Zoom = 100
   end

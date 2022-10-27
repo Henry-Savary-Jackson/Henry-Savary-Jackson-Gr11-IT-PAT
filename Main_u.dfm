@@ -16,7 +16,7 @@ object frmMain: TfrmMain
   PixelsPerInch = 96
   TextHeight = 18
   object lblWelcome: TLabel
-    Left = 112
+    Left = 110
     Top = 8
     Width = 112
     Height = 18
@@ -31,15 +31,6 @@ object frmMain: TfrmMain
     TabOrder = 0
     OnClick = btnSignOutClick
   end
-  object btnHelp: TButton
-    Left = 307
-    Top = 8
-    Width = 40
-    Height = 25
-    Caption = '?'
-    TabOrder = 1
-    OnClick = btnHelpClick
-  end
   object btnTournament: TButton
     Left = 48
     Top = 48
@@ -52,7 +43,7 @@ object frmMain: TfrmMain
     Font.Name = 'Agency FB'
     Font.Style = [fsBold]
     ParentFont = False
-    TabOrder = 2
+    TabOrder = 1
     OnClick = btnTournamentClick
   end
   object btnTeams: TButton
@@ -67,7 +58,7 @@ object frmMain: TfrmMain
     Font.Name = 'Agency FB'
     Font.Style = [fsBold]
     ParentFont = False
-    TabOrder = 3
+    TabOrder = 2
     OnClick = btnTeamsClick
   end
   object btnSupervisors: TButton
@@ -82,7 +73,7 @@ object frmMain: TfrmMain
     Font.Name = 'Agency FB'
     Font.Style = [fsBold]
     ParentFont = False
-    TabOrder = 4
+    TabOrder = 3
     OnClick = btnSupervisorsClick
   end
 end

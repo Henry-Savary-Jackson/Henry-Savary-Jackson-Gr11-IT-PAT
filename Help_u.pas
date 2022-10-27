@@ -9,8 +9,9 @@ uses
 type
   TfrmHelp = class(TForm)
     btnBack: TButton;
-    RichEdit1: TRichEdit;
+    redHelp: TRichEdit;
     procedure btnBackClick(Sender: TObject);
+    procedure FormClose(Sender: TObject; var Action: TCloseAction);
   private
     { Private declarations }
   public
@@ -22,14 +23,21 @@ var
 
 implementation
 uses
-Main_u;
+Login_u;
 
 {$R *.dfm}
 
 procedure TfrmHelp.btnBackClick(Sender: TObject);
 begin
-frmMain.Show;
+//Naviguate  back to login screen
+frmLogin.Show;
 frmHelp.Hide;
+end;
+
+procedure TfrmHelp.FormClose(Sender: TObject; var Action: TCloseAction);
+begin
+//terminate application
+Application.Terminate;
 end;
 
 end.

@@ -2972,4 +2972,13 @@ object frmLogin: TfrmLogin
     TabOrder = 3
     OnClick = btnSignUpClick
   end
+  object btnHelp: TButton
+    Left = 306
+    Top = 8
+    Width = 40
+    Height = 25
+    Caption = '?'
+    TabOrder = 4
+    OnClick = btnHelpClick
+  end
 end

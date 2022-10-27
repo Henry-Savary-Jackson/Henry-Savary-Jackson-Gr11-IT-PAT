@@ -19,12 +19,14 @@ type
     imLogo: TImage;
     lblAppTitle: TLabel;
     lblSignUp: TLabel;
+    btnHelp: TButton;
     procedure btnSignInClick(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure btnSignUpClick(Sender: TObject);
     procedure FormShow(Sender: TObject);
     function NotifySupervisor(dDate: TDate; sUsername, sID: string;
       iUser: integer): boolean;
+    procedure btnHelpClick(Sender: TObject);
 
   private
     { Private declarations }
@@ -52,9 +54,17 @@ implementation
 uses
   Main_u,
   SignUp_u,
+  Help_u,
   Match_u;
 
+
 {$R *.dfm}
+
+procedure TfrmLogin.btnHelpClick(Sender: TObject);
+begin
+frmHelp.Show;
+frmLogin.Hide;
+end;
 
 procedure TfrmLogin.btnSignInClick(Sender: TObject);
 var
